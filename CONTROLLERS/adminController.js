@@ -3,6 +3,7 @@ import { emailVal } from "../UTILITY/emailVal.js";
 import AppError from "../UTILITY/errClass.js";
 import { Blog } from "../SCHEMA/blogSchema.js";
 import { saveImageOnGit } from "../UTILITY/SaveImageOnGit.js"
+import { RawURL } from "../UTILITY/rawGitFormat.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -134,13 +135,14 @@ export const CreateBlog = async (req, res, next) => {
             try {
                 await saveImageOnGit(req.file.path)
                 // console.log(rawGitUpload)
-                createBlog.BlogImage.rawgit_url = req.file.path
+                createBlog.BlogImage.rawgit_url = RawURL(req.file.path)
                 // console.log(createBlog)
 
             }
             catch (e) {
                 return next(new AppError(e.message))
                 // console.log(e.message)
+                
             }
 
         }
