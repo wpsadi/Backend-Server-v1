@@ -34,6 +34,9 @@ const blogSchema = new Schema({
         },
         secure_url:{
             type:String
+        },
+        rawgit_url:{
+            type:String
         }
     },
     CreatedOn:{
