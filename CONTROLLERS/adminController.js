@@ -4,6 +4,7 @@ import AppError from "../UTILITY/errClass.js";
 import { Blog } from "../SCHEMA/blogSchema.js";
 import { saveImageOnGit } from "../UTILITY/SaveImageOnGit.js"
 import { RawURL } from "../UTILITY/rawGitFormat.js";
+import path from "path"
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -131,7 +132,8 @@ export const CreateBlog = async (req, res, next) => {
         const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage });
 
         if (req.file) {
-            // console.log(req.file.path)
+            console.log(req.file.path)
+            console.log(path.resolve(req.file.path))
             try {
                 await saveImageOnGit(req.file.path)
                 // console.log(rawGitUpload)

@@ -17,7 +17,7 @@ export const RawURL = (Filepath)=>{
     // urlPath.replaceAll("\\","/")
 
 
-    return `https://${querystring.escape(urlPath).replaceAll("%2F","/")}`
+    return `https://${querystring.escape(urlPath).replaceAll("%2F","/")}` 
 }
 
 
