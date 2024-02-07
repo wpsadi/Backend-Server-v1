@@ -1,5 +1,5 @@
 import {config} from "dotenv";
 
-config({path:".env.dev"})
+config({path:".env"})
 
 export default config;
