@@ -7,7 +7,8 @@ import path from "path"
 // Path to your Git repository
 // console.log(path.relative())
 // const repoPath = "D:/junk/UploadTrash/";
-const repoPath = "E:/ACM-Backend/"
+const repoPath1 = "E:/ACM-Backend/"
+const repoPath2 = "E:/ACM-Backend/upload"
 // console.log(repoPath)
 
 
@@ -25,7 +26,30 @@ export const saveImageOnGit = async(imagePath)=>{
         }
     
         // Initialize simple-git with the repository path
-        const git = simpleGit(repoPath);
+        const git = simpleGit(repoPath1);
+    
+        // Add the image file to the staging area
+        git.add(imagePath)
+            .then(() => {
+                // Commit the changes with a message
+                return git.commit('Add image file: ' + imagePath);
+            })
+            .then(() => {
+                git.push('origin', 'main')
+                console.log('Image file committed successfully.');
+            })
+            .catch((err) => {
+                console.error('Error committing image file:', err);
+            });
+    });
+    fs.readFile(imagePath, (err, data) => {
+        if (err) {
+            console.error('Error reading image file:', err);
+            return;
+        }
+    
+        // Initialize simple-git with the repository path
+        const git = simpleGit(repoPath2);
     
         // Add the image file to the staging area
         git.add(imagePath)
