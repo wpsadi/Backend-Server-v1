@@ -149,7 +149,7 @@ export const CreateBlog = async (req, res, next) => {
 
         }
 
-        await createBlog.save()
+        await createBlog.save() 
 
 
 
