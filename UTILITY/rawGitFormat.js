@@ -1,7 +1,8 @@
 import gitUserName from 'git-user-name';
 import path from "path"
+import "../environment.js"
 import querystring from "querystring"
-const username = gitUserName();
+const username = process.env.Github_username;
 console.log(username)
 
 // syntax = https://raw.githubusercontent.com/wpsadi/TT/master/README.md
