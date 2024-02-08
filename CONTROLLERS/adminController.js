@@ -63,7 +63,7 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
         return next(new AppError(e.message, 500))
     }
 }
- 
+
 export const Admin_Login = async (req, res, next) => {
     try {
 
@@ -129,43 +129,61 @@ export const CreateBlog = async (req, res, next) => {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
         }
 
+        // console.log(BlogAuthorEmail,await emailVal(BlogAuthorEmail),BlogAuthorEmail && (await emailVal(BlogAuthorEmail)))
+        // console.log(BlogAuthorEmail && !(await emailVal(BlogAuthorEmail)),!BlogAuthorEmail)
+        if (BlogAuthorEmail && !(await emailVal(BlogAuthorEmail))) {
+            return next(new AppError("Email is invalid, please correct the email"))
+        }
 
-        const BlogImage = {}
+        if (BlogAuthorEmail && BlogAuthorEmail.includes("@acm.uss")) {
+            return next(new AppError("Don't play smart, this type of email-address is reserved for the server use"))
+        }
+
+
+        let BlogImage = {}
         const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage });
+
+        if (!BlogAuthorEmail) {
+            // const adminID = req.admin.adminID;
+            // console.log()
+            createBlog.BlogAuthorEmail = `${req.admin.adminID}@acm.uss`
+        }
 
         if (req.file) {
             console.log(req.file.path)
-            console.log(path.resolve(req.file.path)) 
+            console.log(path.resolve(req.file.path))
             try {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {
-                    folder: 'lms',
+                    folder: 'blogs',
                     // width: 250, //in px
                     // height: 250,
                     // gravity: 'faces',
                     // crop: 'fill'
-    
+
                 });
-    
+
                 if (result) {
                     createBlog.BlogImage.public_id = result.public_id;
                     createBlog.BlogImage.secure_url = result.secure_url;
-    
+
                     //removing file from local storage
+
                     // console.log(result.public_id, result.secure_url)
-                    fs.rm(req.file.path) 
-    
+                    // console.log(req.url.path)
+                    fs.rm(req.file.path)
+
                 }
 
             }
             catch (e) {
                 // return next(new AppError(e.message))
                 console.log(e.message)
-                
+
             }
 
         }
 
-        await createBlog.save() 
+        await createBlog.save()
 
 
 
@@ -186,3 +204,45 @@ export const CreateBlog = async (req, res, next) => {
 }
 
 
+export const EditBlog = async (req, res, next) => {
+    try {
+        const { BlogID } = req.params
+        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory } = req.body
+        // console.log(req.body,!BlogContent)
+        if (!BlogContent) {
+            return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
+        }
+
+        // console.log(BlogAuthorEmail,await emailVal(BlogAuthorEmail),BlogAuthorEmail && (await emailVal(BlogAuthorEmail)))
+        // console.log(BlogAuthorEmail && !(await emailVal(BlogAuthorEmail)),!BlogAuthorEmail)
+        if (BlogAuthorEmail && !(await emailVal(BlogAuthorEmail))) {
+            return next(new AppError("Email is invalid, please correct the email"))
+        }
+
+        if (BlogAuthorEmail && BlogAuthorEmail.includes("@acm.uss")) {
+            return next(new AppError("Don't play smart, this type of email-address is reserved for the server use"))
+        }
+
+
+        const dateTime = new Date();
+        const date = (dateTime.toDateString()).split(" ");
+        const LastUpdatedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
+
+        const existingBlog = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: {...req.body,LastUpdatedOn}
+        }, { runValidators: true })
+        if (!existingBlog) {
+            return next(new AppError("No Blog Associated with the passed BlogID"))
+        }
+
+
+        let response = await Blog.findById(existingBlog._id)
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}

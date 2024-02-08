@@ -15,7 +15,7 @@ cloudinary.config({
 const PORT = process.env.PORT
 app.listen(PORT,async ()=>{
     await dbConnect();
-    test()
+    // test()
     console.log(`Server is running at PORT -> ${PORT}\n`)
 })
 

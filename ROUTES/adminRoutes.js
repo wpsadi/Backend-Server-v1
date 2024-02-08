@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login,CreateBlog } from "../CONTROLLERS/adminController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login,CreateBlog,EditBlog } from "../CONTROLLERS/adminController.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
@@ -22,5 +22,5 @@ r.route("/login").post(Admin_Login)
 //Blogs
 r.route("/blogs")
     .post(RetrieveAdminCookie, CheckAdmin,upload("blogs").single("coverPage"),CreateBlog)
-
+r.route("/blogs/:BlogID").put(RetrieveAdminCookie, CheckAdmin,upload("blogs").single("coverPage"),EditBlog)
 export default r;
