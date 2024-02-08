@@ -1,6 +1,7 @@
 import { Admin } from "../SCHEMA/adminSchema.js";
 import { emailVal } from "../UTILITY/emailVal.js";
 import AppError from "../UTILITY/errClass.js";
+import "../environment.js"
 import { Blog } from "../SCHEMA/blogSchema.js";
 import { saveImageOnGit } from "../UTILITY/SaveImageOnGit.js"
 import { RawURL } from "../UTILITY/rawGitFormat.js";
@@ -150,8 +151,8 @@ export const CreateBlog = async (req, res, next) => {
         }
 
         if (req.file) {
-            console.log(req.file.path)
-            console.log(path.resolve(req.file.path))
+            // console.log(req.file.path)
+            // console.log(path.resolve(req.file.path))
             try {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {
                     folder: 'blogs',
@@ -177,7 +178,7 @@ export const CreateBlog = async (req, res, next) => {
             }
             catch (e) {
                 // return next(new AppError(e.message))
-                console.log(e.message)
+                null
 
             }
 
@@ -234,6 +235,37 @@ export const EditBlog = async (req, res, next) => {
         if (!existingBlog) {
             return next(new AppError("No Blog Associated with the passed BlogID"))
         }
+
+        if (req.file){
+            console.log(existingBlog.BlogImage.public_id)
+            await cloudinary.v2.uploader.destroy(existingBlog.BlogImage.public_id);
+            console.log("image deleted")
+            existingBlog.BlogImage.public_id = process.env.default_BlogImage_public_id;
+            existingBlog.BlogImage.secure_url = process.env.default_BlogImage_secure_url;
+
+            try {
+                const result = await cloudinary.v2.uploader.upload(req.file.path, {
+                    folder: 'blogs'    
+                });
+    
+                if (result) {
+                    existingBlog.BlogImage.public_id = result.public_id;
+                    existingBlog.BlogImage.secure_url = result.secure_url;
+
+                    //removing file from local storage
+
+                    fs.rm(req.file.path)
+
+                }
+    
+            } catch (e) {
+                // console.log("Image Goofed Up")
+                null
+            }   
+            
+        }
+
+        await existingBlog.save()
 
 
         let response = await Blog.findById(existingBlog._id)

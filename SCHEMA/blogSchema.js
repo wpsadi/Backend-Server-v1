@@ -73,7 +73,7 @@ const blogSchema = new Schema({
 
 blogSchema.plugin(autoInc, { inc_field: "BlogID" })
 blogSchema.pre('save', async function (next) {
-    console.log(this)
+    // console.log(this)
     if (!this.isModified('updatedAt')) {
         next();
        
