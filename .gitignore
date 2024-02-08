@@ -1,6 +1,6 @@
 # Ignored Folders
 node_modules
-upload
+# upload
 #    when creating a folder comment the upload folder then remove all the images from the sub folders, just keep the doNotDelete.md
 
 #ignored files
