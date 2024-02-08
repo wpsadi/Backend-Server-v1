@@ -4,6 +4,8 @@ import AppError from "../UTILITY/errClass.js";
 import { Blog } from "../SCHEMA/blogSchema.js";
 import { saveImageOnGit } from "../UTILITY/SaveImageOnGit.js"
 import { RawURL } from "../UTILITY/rawGitFormat.js";
+import fs from "fs/promises"
+import cloudinary from "cloudinary"
 import path from "path"
 
 export const pong = async (req, res) => {
@@ -61,7 +63,7 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
         return next(new AppError(e.message, 500))
     }
 }
-
+ 
 export const Admin_Login = async (req, res, next) => {
     try {
 
@@ -133,12 +135,26 @@ export const CreateBlog = async (req, res, next) => {
 
         if (req.file) {
             console.log(req.file.path)
-            console.log(path.resolve(req.file.path))
+            console.log(path.resolve(req.file.path)) 
             try {
-                await saveImageOnGit(req.file.path)
-                // console.log(rawGitUpload)
-                createBlog.BlogImage.rawgit_url = RawURL(req.file.path)
-                // console.log(createBlog)
+                const result = await cloudinary.v2.uploader.upload(req.file.path, {
+                    folder: 'lms',
+                    // width: 250, //in px
+                    // height: 250,
+                    // gravity: 'faces',
+                    // crop: 'fill'
+    
+                });
+    
+                if (result) {
+                    createBlog.BlogImage.public_id = result.public_id;
+                    createBlog.BlogImage.secure_url = result.secure_url;
+    
+                    //removing file from local storage
+                    // console.log(result.public_id, result.secure_url)
+                    fs.rm(req.file.path) 
+    
+                }
 
             }
             catch (e) {
