@@ -135,9 +135,9 @@ export const EditBlog = async (req, res, next) => {
         }
 
         // console.log(req.body,!BlogContent)
-        if (!BlogContent) {
-            return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
-        }
+        // if (!BlogContent) {
+        //     return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
+        // }
 
         // console.log(BlogAuthorEmail,await emailVal(BlogAuthorEmail),BlogAuthorEmail && (await emailVal(BlogAuthorEmail)))
         // console.log(BlogAuthorEmail && !(await emailVal(BlogAuthorEmail)),!BlogAuthorEmail)
