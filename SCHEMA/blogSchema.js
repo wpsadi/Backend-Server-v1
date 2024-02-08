@@ -26,8 +26,9 @@ const blogSchema = new Schema({
     },
     BlogCategory: { 
         type: Array,
-        trim:true,
-        set: values => values.map(value => value.trim()) },
+        trim:true
+        // set: values => values.map(value => value.trim()) 
+    },
     BlogID: {
         type: Number,
         unique: true

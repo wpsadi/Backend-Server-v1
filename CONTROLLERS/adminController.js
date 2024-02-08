@@ -88,7 +88,7 @@ export const Admin_Login = async (req, res, next) => {
 
         console.log(await verifyAdminCredentials.comparePass(password))
 
-        if (! (await verifyAdminCredentials.comparePass(password))) {
+        if (!(await verifyAdminCredentials.comparePass(password))) {
             return next(new AppError("Incorrect Password", 400))
         }
 
@@ -131,11 +131,23 @@ export const CreateBlog = async (req, res, next) => {
 
         const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
 
-        let BlogCategory  =req.body.BlogCategory;
-        if (!!BlogCategory){
-            BlogCategory = BlogCategory.split(";");
+        let BlogCategory = req.body.BlogCategory;
+        if (!!BlogCategory) {
+            BlogCategory = (function () {
+                BlogCategory = BlogCategory.split(";");
+                let CategoryArr = new Array();
+                for (let category of BlogCategory){
+                    let trimmed = category.trim();
+                    
+                    if (trimmed.length>0){
+                        CategoryArr.push(trimmed)
+                    }
+                }
+
+                return CategoryArr
+            })()
         }
-        
+
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
@@ -221,12 +233,24 @@ export const EditBlog = async (req, res, next) => {
         const { BlogID } = req.params
         const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
 
-        let BlogCategory  =req.body.BlogCategory;
+        let BlogCategory = req.body.BlogCategory;
         console.log(!!BlogCategory)
-        if (!!BlogCategory){
-            BlogCategory = BlogCategory.split(";")
+        if (!!BlogCategory) {
+            BlogCategory = (function () {
+                BlogCategory = BlogCategory.split(";");
+                let CategoryArr = new Array();
+                for (let category of BlogCategory){
+                    let trimmed = category.trim();
+                    
+                    if (trimmed.length>0){
+                        CategoryArr.push(trimmed)
+                    }
+                }
+
+                return CategoryArr
+            })()
         }
-        
+
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
@@ -248,13 +272,13 @@ export const EditBlog = async (req, res, next) => {
         const LastUpdatedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
 
         const existingBlog = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: {...req.body,LastUpdatedOn,BlogCategory}
+            $set: { ...req.body, LastUpdatedOn, BlogCategory }
         }, { runValidators: true })
         if (!existingBlog) {
             return next(new AppError("No Blog Associated with the passed BlogID"))
         }
 
-        if (req.file){
+        if (req.file) {
             console.log(existingBlog.BlogImage.public_id)
             await cloudinary.v2.uploader.destroy(existingBlog.BlogImage.public_id);
             console.log("image deleted")
@@ -263,9 +287,9 @@ export const EditBlog = async (req, res, next) => {
 
             try {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {
-                    folder: 'blogs'    
+                    folder: 'blogs'
                 });
-    
+
                 if (result) {
                     existingBlog.BlogImage.public_id = result.public_id;
                     existingBlog.BlogImage.secure_url = result.secure_url;
@@ -275,12 +299,12 @@ export const EditBlog = async (req, res, next) => {
                     fs.rm(req.file.path)
 
                 }
-    
+
             } catch (e) {
                 // console.log("Image Goofed Up")
                 null
-            }   
-            
+            }
+
         }
 
         await existingBlog.save()
