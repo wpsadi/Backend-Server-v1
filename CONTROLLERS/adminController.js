@@ -142,8 +142,8 @@ export const CreateBlog = async (req, res, next) => {
 
             }
             catch (e) {
-                return next(new AppError(e.message))
-                // console.log(e.message)
+                // return next(new AppError(e.message))
+                console.log(e.message)
                 
             }
 
