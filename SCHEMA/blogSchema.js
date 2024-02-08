@@ -52,7 +52,11 @@ const blogSchema = new Schema({
     },
     FirstPublishedOn: {
         type: String,
-        default: process.env.defualt_FirstPublishedOn
+        default: process.env.default_FirstPublishedOn
+    },
+    Published:{
+        type:String,
+        default:false
     },
     LastUpdatedOn: { // value set by pre('save')
         type: String

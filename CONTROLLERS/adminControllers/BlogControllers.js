@@ -48,7 +48,7 @@ export const CreateBlog = async (req, res, next) => {
 
 
         let BlogImage = {}
-        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage });
+        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage,ApprovedBy:"None" });
 
         if (!BlogAuthorEmail) {
             // const adminID = req.admin.adminID;
@@ -77,7 +77,7 @@ export const CreateBlog = async (req, res, next) => {
 
                     // console.log(result.public_id, result.secure_url)
                     // console.log(req.url.path)
-                    fs.rm(req.file.path)
+                    await fs.rm(req.file.path)
 
                 }
 
@@ -155,7 +155,7 @@ export const EditBlog = async (req, res, next) => {
         const LastUpdatedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
 
         const existingBlog = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: { ...req.body, LastUpdatedOn, BlogCategory }
+            $set: { ...req.body, LastUpdatedOn, BlogCategory,ApprovedBy:"None",Published:false }
         }, { runValidators: true })
         if (!existingBlog) {
             return next(new AppError("No Blog Associated with the passed BlogID"))
@@ -179,7 +179,7 @@ export const EditBlog = async (req, res, next) => {
 
                     //removing file from local storage
 
-                    fs.rm(req.file.path)
+                    await fs.rm(req.file.path)
 
                 }
 
@@ -204,3 +204,155 @@ export const EditBlog = async (req, res, next) => {
     }
 }
 
+export const DeleteBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+
+        const BlogExists = await Blog.findOneAndDelete({BlogID});
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        let response = `Blog:${BlogID} is deleted successfully`;
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const GetBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+
+        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOne({BlogID}).select(whatIDontWant);
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        let response = BlogExists;
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const approveBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+        console.log(req)
+        const {adminID} = req.admin
+        // console.log(AdminID)
+
+        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
+            $set:{ApprovedBy:adminID}
+        }).select(whatIDontWant);
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        let response = "Approved";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const rejectBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+
+        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
+            $set:{ApprovedBy:"None",Published:false}
+        }).select(whatIDontWant);
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        let response = "Blog Approval is REVOKED. It will also be UNPUBLISH";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const PublishBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+        const {AdminID} = req.admin
+
+        // const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
+            $set:{Published:true}
+        });
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        if (BlogExists.FirstPublishedOn == process.env.default_FirstPublishedOn){
+            const dateTime = new Date();
+            const date = (dateTime.toDateString()).split(" ");
+        
+            BlogExists.FirstPublishedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
+            await BlogExists.save()
+        }
+
+        console.log()
+
+        let response = "Blog is Published";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const UnpublishBlog = async(req,res,next)=>{
+    try{
+        const { BlogID } = req.params
+
+        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
+            $set:{Published:false}
+        }).select(whatIDontWant);
+
+        if (!BlogExists){
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        let response = "Blog is UNPUBLISHED";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
