@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login,CreateBlog,EditBlog } from "../CONTROLLERS/adminController.js"
+import {pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login} from "../CONTROLLERS/adminController.js"
+import {CreateBlog,EditBlog} from "../CONTROLLERS/adminControllers/BlogControllers.js"
+// import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login,CreateBlog,EditBlog } from "../CONTROLLERS/adminController.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
