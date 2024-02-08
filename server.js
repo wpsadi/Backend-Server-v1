@@ -2,7 +2,7 @@ import app from "./index.js";
 import "./environment.js";// this declare the .env file to use
 import { dbConnect } from "./DB_config/dbConfig.js";
 import cloudinary from "cloudinary";
-
+import test from "./ShellCommands.js"
 
 
 cloudinary.config({ 
@@ -15,6 +15,7 @@ cloudinary.config({
 const PORT = process.env.PORT
 app.listen(PORT,async ()=>{
     await dbConnect();
+    test()
     console.log(`Server is running at PORT -> ${PORT}\n`)
 })
 
