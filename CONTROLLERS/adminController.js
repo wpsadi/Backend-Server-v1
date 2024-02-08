@@ -132,7 +132,10 @@ export const CreateBlog = async (req, res, next) => {
         const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
 
         let BlogCategory  =req.body.BlogCategory;
-        BlogCategory = BlogCategory.split(";");
+        if (!!BlogCategory){
+            BlogCategory = BlogCategory.split(";");
+        }
+        
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
@@ -219,7 +222,11 @@ export const EditBlog = async (req, res, next) => {
         const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
 
         let BlogCategory  =req.body.BlogCategory;
-        BlogCategory = BlogCategory.split(";")
+        console.log(!!BlogCategory)
+        if (!!BlogCategory){
+            BlogCategory = BlogCategory.split(";")
+        }
+        
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
@@ -241,7 +248,7 @@ export const EditBlog = async (req, res, next) => {
         const LastUpdatedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
 
         const existingBlog = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: {...req.body,LastUpdatedOn}
+            $set: {...req.body,LastUpdatedOn,BlogCategory}
         }, { runValidators: true })
         if (!existingBlog) {
             return next(new AppError("No Blog Associated with the passed BlogID"))
