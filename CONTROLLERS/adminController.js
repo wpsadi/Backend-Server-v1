@@ -86,9 +86,12 @@ export const Admin_Login = async (req, res, next) => {
             return next(new AppError("Email doesn't exist in Admin Database", 400))
         }
 
-        if (!verifyAdminCredentials.comparePass(password)) {
+        console.log(await verifyAdminCredentials.comparePass(password))
+
+        if (! (await verifyAdminCredentials.comparePass(password))) {
             return next(new AppError("Incorrect Password", 400))
         }
+
 
         let CookieOptions = {
             httpOnly: true,
@@ -104,7 +107,9 @@ export const Admin_Login = async (req, res, next) => {
 
         res.cookie("AdminToken", AdminToken, CookieOptions)
 
-        let response = verifyAdminCredentials
+        let response = await verifyAdminCredentials.details()
+        delete response["password"];
+        console.log(response)
         res.status(201).json({
             status: true,
             res_type: typeof response,
@@ -124,7 +129,10 @@ export const Admin_Login = async (req, res, next) => {
 export const CreateBlog = async (req, res, next) => {
     try {
 
-        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory } = req.body
+        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
+
+        let BlogCategory  =req.body.BlogCategory;
+        BlogCategory = BlogCategory.split(";");
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))
@@ -208,7 +216,10 @@ export const CreateBlog = async (req, res, next) => {
 export const EditBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
-        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory } = req.body
+        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
+
+        let BlogCategory  =req.body.BlogCategory;
+        BlogCategory = BlogCategory.split(";")
         // console.log(req.body,!BlogContent)
         if (!BlogContent) {
             return next(new AppError("Content not found or Empty. While we except the submission of empty details in Other Fields, we highly encourage You to submit a complete form"))

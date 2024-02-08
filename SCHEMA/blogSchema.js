@@ -24,7 +24,10 @@ const blogSchema = new Schema({
         minLength: 5,
         required: [true, "Content of blog is missing"]
     },
-    BlogCategory: [{ type: String }],
+    BlogCategory: { 
+        type: Array,
+        trim:true,
+        set: values => values.map(value => value.trim()) },
     BlogID: {
         type: Number,
         unique: true

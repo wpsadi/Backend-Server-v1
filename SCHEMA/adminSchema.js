@@ -52,8 +52,11 @@ AdminSchema.methods = {
     genJWT() {
         return JWT.sign({ adminID: this.id }, process.env.JWT_secret, { expiresIn: "7d" })
     },
-    comparePass(password){
-        return bcrypt.compare(password,this.password)
+    async comparePass(password){
+        return await bcrypt.compare(password,this.password)
+    },
+    details(){
+        return {AdminEmail:this.AdminEmail,AdminName:this.AdminName}
     }
 }
 
