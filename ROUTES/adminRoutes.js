@@ -1,7 +1,6 @@
 import { Router } from "express";
-import {pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login} from "../CONTROLLERS/adminController.js"
+import {pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login} from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import {CreateBlog,EditBlog} from "../CONTROLLERS/adminControllers/BlogControllers.js"
-// import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login,CreateBlog,EditBlog } from "../CONTROLLERS/adminController.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
@@ -17,7 +16,7 @@ r.route("/NewAdmin").post(RetrieveAdminCookie, CheckAdmin, createNewAdmin)
 //For creating a Prime Account{1st Admin}
 // r.route("/NewAdmin").post(createNewAdmin)
 
-r.route("/login").post(Admin_Login)
+r.route("/login").post(Admin_Login) 
 
  
 
