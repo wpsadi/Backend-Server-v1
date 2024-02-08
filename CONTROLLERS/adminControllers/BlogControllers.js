@@ -19,10 +19,10 @@ export const CreateBlog = async (req, res, next) => {
             BlogCategory = (function () {
                 BlogCategory = BlogCategory.split(";");
                 let CategoryArr = new Array();
-                for (let category of BlogCategory){
+                for (let category of BlogCategory) {
                     let trimmed = category.trim();
-                    
-                    if (trimmed.length>0){
+
+                    if (trimmed.length > 0) {
                         CategoryArr.push(trimmed)
                     }
                 }
@@ -48,7 +48,7 @@ export const CreateBlog = async (req, res, next) => {
 
 
         let BlogImage = {}
-        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage,ApprovedBy:"None" });
+        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage, ApprovedBy: "None" });
 
         if (!BlogAuthorEmail) {
             // const adminID = req.admin.adminID;
@@ -122,10 +122,10 @@ export const EditBlog = async (req, res, next) => {
             BlogCategory = (function () {
                 BlogCategory = BlogCategory.split(";");
                 let CategoryArr = new Array();
-                for (let category of BlogCategory){
+                for (let category of BlogCategory) {
                     let trimmed = category.trim();
-                    
-                    if (trimmed.length>0){
+
+                    if (trimmed.length > 0) {
                         CategoryArr.push(trimmed)
                     }
                 }
@@ -155,7 +155,7 @@ export const EditBlog = async (req, res, next) => {
         const LastUpdatedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
 
         const existingBlog = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: { ...req.body, LastUpdatedOn, BlogCategory,ApprovedBy:"None",Published:false }
+            $set: { ...req.body, LastUpdatedOn, BlogCategory, ApprovedBy: "None", Published: false,Approved:false }
         }, { runValidators: true })
         if (!existingBlog) {
             return next(new AppError("No Blog Associated with the passed BlogID"))
@@ -204,13 +204,13 @@ export const EditBlog = async (req, res, next) => {
     }
 }
 
-export const DeleteBlog = async(req,res,next)=>{
-    try{
+export const DeleteBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
 
-        const BlogExists = await Blog.findOneAndDelete({BlogID});
+        const BlogExists = await Blog.findOneAndDelete({ BlogID });
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
@@ -225,14 +225,14 @@ export const DeleteBlog = async(req,res,next)=>{
     }
 }
 
-export const GetBlog = async(req,res,next)=>{
-    try{
+export const GetBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
 
-        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOne({BlogID}).select(whatIDontWant);
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOne({ BlogID }).select(whatIDontWant);
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
@@ -247,19 +247,19 @@ export const GetBlog = async(req,res,next)=>{
     }
 }
 
-export const approveBlog = async(req,res,next)=>{
-    try{
+export const approveBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
         console.log(req)
-        const {adminID} = req.admin
+        const { adminID } = req.admin
         // console.log(AdminID)
 
-        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
-            $set:{ApprovedBy:adminID}
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: { ApprovedBy: adminID,Approved:true }
         }).select(whatIDontWant);
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
@@ -274,16 +274,16 @@ export const approveBlog = async(req,res,next)=>{
     }
 }
 
-export const rejectBlog = async(req,res,next)=>{
-    try{
+export const rejectBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
 
-        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
-            $set:{ApprovedBy:"None",Published:false}
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: { ApprovedBy: "None", Published: false ,Approved:false}
         }).select(whatIDontWant);
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
@@ -298,24 +298,24 @@ export const rejectBlog = async(req,res,next)=>{
     }
 }
 
-export const PublishBlog = async(req,res,next)=>{
-    try{
+export const PublishBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
-        const {AdminID} = req.admin
+        const { AdminID } = req.admin
 
         // const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
-            $set:{Published:true}
+        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: { Published: true }
         });
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
-        if (BlogExists.FirstPublishedOn == process.env.default_FirstPublishedOn){
+        if (BlogExists.FirstPublishedOn == process.env.default_FirstPublishedOn) {
             const dateTime = new Date();
             const date = (dateTime.toDateString()).split(" ");
-        
+
             BlogExists.FirstPublishedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
             await BlogExists.save()
         }
@@ -333,16 +333,16 @@ export const PublishBlog = async(req,res,next)=>{
     }
 }
 
-export const UnpublishBlog = async(req,res,next)=>{
-    try{
+export const UnpublishBlog = async (req, res, next) => {
+    try {
         const { BlogID } = req.params
 
-        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOneAndUpdate({BlogID},{
-            $set:{Published:false}
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: { Published: false }
         }).select(whatIDontWant);
 
-        if (!BlogExists){
+        if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
@@ -355,4 +355,288 @@ export const UnpublishBlog = async(req,res,next)=>{
     } catch (e) {
         return next(new AppError(e.message, 400))
     }
+}
+
+export const paginationBlogs = async (req, res, next) => {
+
+    try {
+        let { limit, pageNo } = req.params;
+        limit = Number(limit);
+        pageNo = Number(pageNo);
+
+        const totalBlogs = await Blog.countDocuments();
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+        if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
+
+
+            let rem = totalBlogs % limit;
+            let div = (totalBlogs - rem) / limit
+
+            let totalPages = div
+
+            if (rem > 0) {
+                totalPages++
+            }
+
+            if (pageNo > totalPages) {
+                return next(new AppError("No more page is available", 400))
+            }
+
+            let next_url = null;
+            let prev_url = null;
+
+
+            const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
+            if (pageNo >= 1 && pageNo < totalPages) {
+                baseURL[baseURL.length - 1] = `${pageNo + 1}`
+                next_url = baseURL.join("/")
+            }
+
+            if (pageNo > 1 && pageNo <= totalPages) {
+                baseURL[baseURL.length - 1] = `${pageNo - 1}`
+                prev_url = baseURL.join("/")
+            }
+
+            // let minNumber = (limit * (pageNo-1))+1;
+            // if (minNumber <= 0) {
+            //     minNumber = 1
+            // }
+
+            // let maxNumber = (limit * pageNo)
+            // console.log(maxNumber,minNumber)
+
+
+            const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+            const response = await Blog.find().select(whatIDontWant).limit(limit).skip(limit*(pageNo-1));
+
+            res.status(201).json({
+                status: true,
+                res_type: typeof response,
+                total_records: totalBlogs,
+                next_url,
+                prev_url,
+                response: response
+            })
+        }
+        else {
+            return next(new AppError("limit and pageNo must be positive numbers", 400))
+        }
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+
+}
+
+export const AllpaginationBlogs = async (req, res, next) => {
+    try {
+        const { limit } = req.params;
+
+        const totalBlogs = await Blog.countDocuments();
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+        if (limit == process.env.allBlogsKeyword) {
+
+            let response = await Blog.find().select(whatIDontWant);
+            res.status(201).json({
+                status: true,
+                res_type: typeof response,
+                total_records: totalBlogs,
+                response: response
+            })
+        }
+        else {
+            return next(new AppError(`use \`${process.env.allBlogsKeyword}\` at the place of limit to get all records.`, 400))
+        }
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const paginationApprovedBlogs = async(req,res,next)=>{
+        try {
+        let { limit, pageNo } = req.params;
+        limit = Number(limit);
+        pageNo = Number(pageNo);
+
+        const totalBlogs = await Blog.countDocuments({Approved:true });
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+        if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
+
+
+            let rem = totalBlogs % limit;
+            let div = (totalBlogs - rem) / limit
+
+            let totalPages = div
+
+            if (rem > 0) {
+                totalPages++
+            }
+
+            if (pageNo > totalPages) {
+                return next(new AppError("No more page is available", 400))
+            }
+
+            let next_url = null;
+            let prev_url = null;
+
+
+            const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
+            if (pageNo >= 1 && pageNo < totalPages) {
+                baseURL[baseURL.length - 1] = `${pageNo + 1}`
+                next_url = baseURL.join("/")
+            }
+
+            if (pageNo > 1 && pageNo <= totalPages) {
+                baseURL[baseURL.length - 1] = `${pageNo - 1}`
+                prev_url = baseURL.join("/")
+            }
+
+            let minNumber = (limit * (pageNo-1))+1;
+            if (minNumber <= 0) {
+                minNumber = 1
+            }
+
+            let maxNumber = (limit * pageNo)
+            console.log(maxNumber,minNumber)
+
+
+            const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+            const response = await Blog.find({Approved:true }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1));
+
+            res.status(201).json({
+                status: true,
+                res_type: typeof response,
+                total_records: totalBlogs,
+                next_url,
+                prev_url,
+                response: response
+            })
+        }
+        else {
+            return next(new AppError("limit and pageNo must be positive numbers", 400))
+        }
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const AllpaginationApprovedBlogs = async(req,res,next)=>{
+    try {
+        const { limit } = req.params;
+
+        const totalBlogs = await Blog.countDocuments({Approved:true});
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+        if (limit == process.env.allBlogsKeyword) {
+
+            let response = await Blog.find({Approved:true}).select(whatIDontWant);
+            res.status(201).json({
+                status: true,
+                res_type: typeof response,
+                total_records: totalBlogs,
+                response: response
+            })
+        }
+        else {
+            return next(new AppError(`use \`${process.env.allBlogsKeyword}\` at the place of limit to get all records.`, 400))
+        }
+    } catch (e) {
+        return next(new AppError(e.message, 400))
+    }
+}
+
+export const paginationRejectedBlogs = async(req,res,next)=>{
+    try {
+    let { limit, pageNo } = req.params;
+    limit = Number(limit);
+    pageNo = Number(pageNo);
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
+
+
+        let rem = totalBlogs % limit;
+        let div = (totalBlogs - rem) / limit
+
+        let totalPages = div
+
+        if (rem > 0) {
+            totalPages++
+        }
+
+        if (pageNo > totalPages) {
+            return next(new AppError("No more page is available", 400))
+        }
+
+        let next_url = null;
+        let prev_url = null;
+
+
+        const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
+        if (pageNo >= 1 && pageNo < totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo + 1}`
+            next_url = baseURL.join("/")
+        }
+
+        if (pageNo > 1 && pageNo <= totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo - 1}`
+            prev_url = baseURL.join("/")
+        }
+
+        let minNumber = (limit * (pageNo-1))+1;
+        if (minNumber <= 0) {
+            minNumber = 1
+        }
+
+        let maxNumber = (limit * pageNo)
+        console.log(maxNumber,minNumber)
+
+
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const response = await Blog.find({Approved:false }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1));
+
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            next_url,
+            prev_url,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError("limit and pageNo must be positive numbers", 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
+}
+
+export const AllpaginationRejectedBlogs = async(req,res,next)=>{
+try {
+    const { limit } = req.params;
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (limit == process.env.allBlogsKeyword) {
+
+        let response = await Blog.find({Approved:false}).select(whatIDontWant);
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError(`use \`${process.env.allBlogsKeyword}\` at the place of limit to get all records.`, 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
 }
