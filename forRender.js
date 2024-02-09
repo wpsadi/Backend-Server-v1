@@ -9,8 +9,10 @@ const intervalCall = process.env.rederDomainCallingTimeInerval;
 
 export const stayAfloatAPI =() => {
     if (intervalCall && RenderURL) {
-        setInterval(async () => {
+        console.log("I will try to keep your server awake")
+        setInterval(async() => {
             try {
+                console.log("This is me making a call")
                 await axios.get(RenderURL)
             }
             catch (e) {
