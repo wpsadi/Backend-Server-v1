@@ -21,7 +21,7 @@ app.use("/api/v1/admin",adminRoutes)
 
 // Route to keep server alive
 app.use("/keepMeAlive",(req,res)=>{
-    res.status(200)
+    res.status(200).send("Ok")
 })
 
 //Any Invalid Route
