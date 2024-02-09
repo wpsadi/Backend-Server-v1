@@ -80,7 +80,7 @@ export const Admin_Login = async (req, res, next) => {
             return next(new AppError("Email doesn't exist in Admin Database", 400))
         }
 
-        console.log(await verifyAdminCredentials.comparePass(password))
+        // console.log(await verifyAdminCredentials.comparePass(password))
 
         if (!(await verifyAdminCredentials.comparePass(password))) {
             return next(new AppError("Incorrect Password", 400))
@@ -103,7 +103,7 @@ export const Admin_Login = async (req, res, next) => {
 
         let response = await verifyAdminCredentials.details()
         delete response["password"];
-        console.log(response)
+        // console.log(response)
         res.status(201).json({
             status: true,
             res_type: typeof response,

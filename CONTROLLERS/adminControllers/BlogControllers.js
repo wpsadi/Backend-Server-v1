@@ -162,9 +162,9 @@ export const EditBlog = async (req, res, next) => {
         }
 
         if (req.file) {
-            console.log(existingBlog.BlogImage.public_id)
+            // console.log(existingBlog.BlogImage.public_id)
             await cloudinary.v2.uploader.destroy(existingBlog.BlogImage.public_id);
-            console.log("image deleted")
+            // console.log("image deleted")
             existingBlog.BlogImage.public_id = process.env.default_BlogImage_public_id;
             existingBlog.BlogImage.secure_url = process.env.default_BlogImage_secure_url;
 
@@ -250,7 +250,7 @@ export const GetBlog = async (req, res, next) => {
 export const approveBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
-        console.log(req)
+        // console.log(req)
         const { adminID } = req.admin
         // console.log(AdminID)
 
@@ -320,7 +320,7 @@ export const PublishBlog = async (req, res, next) => {
             await BlogExists.save()
         }
 
-        console.log()
+        // console.log()
 
         let response = "Blog is Published";
         res.status(201).json({
@@ -370,7 +370,7 @@ export const paginationBlogs = async (req, res, next) => {
         if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
             if (!["desc",null,"asce"].includes(order)){
-                return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+                return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
             }
 
             order = ["desc",null,"asce"].indexOf(order) - 1
@@ -435,7 +435,7 @@ export const AllpaginationBlogs = async (req, res, next) => {
         let {order} = req.params
         
         if (!["desc",null,"asce"].includes(order)){
-            return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+            return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
         }
 
         order = ["desc",null,"asce"].indexOf(order) - 1
@@ -474,7 +474,7 @@ export const paginationApprovedBlogs = async(req,res,next)=>{
         if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
             if (!["desc",null,"asce"].includes(order)){
-                return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+                return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
             }
 
             order = ["desc",null,"asce"].indexOf(order) - 1
@@ -515,7 +515,6 @@ export const paginationApprovedBlogs = async(req,res,next)=>{
             }
 
             let maxNumber = (limit * pageNo)
-            console.log(maxNumber,minNumber)
 
 
             const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
@@ -550,7 +549,7 @@ export const AllpaginationApprovedBlogs = async(req,res,next)=>{
         if (limit == process.env.allBlogsKeyword) {
 
             if (!["desc",null,"asce"].includes(order)){
-                return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+                return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
             }
 
             order = ["desc",null,"asce"].indexOf(order) - 1
@@ -584,7 +583,7 @@ export const paginationRejectedBlogs = async(req,res,next)=>{
     if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
         if (!["desc",null,"asce"].includes(order)){
-            return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+            return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
         }
 
         order = ["desc",null,"asce"].indexOf(order) - 1
@@ -624,7 +623,6 @@ export const paginationRejectedBlogs = async(req,res,next)=>{
         }
 
         let maxNumber = (limit * pageNo)
-        console.log(maxNumber,minNumber)
 
 
         const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
@@ -654,7 +652,7 @@ try {
     let {order} = req.params
 
     if (!["desc",null,"asce"].includes(order)){
-        return next(new AppError("Specify the order [asce or dsce] to sort the data accordingly"))
+        return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
     }
 
     order = ["desc",null,"asce"].indexOf(order) - 1
