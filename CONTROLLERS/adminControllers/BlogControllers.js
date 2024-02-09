@@ -398,12 +398,13 @@ export const paginationBlogs = async (req, res, next) => {
             const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
             if (pageNo >= 1 && pageNo < totalPages) {
                 baseURL[baseURL.length - 1] = `${pageNo + 1}`
-                next_url = baseURL.join("/")
+                
+                next_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
             }
 
             if (pageNo > 1 && pageNo <= totalPages) {
                 baseURL[baseURL.length - 1] = `${pageNo - 1}`
-                prev_url = baseURL.join("/")
+                prev_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
             }
 
 
@@ -501,12 +502,12 @@ export const paginationApprovedBlogs = async(req,res,next)=>{
             const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
             if (pageNo >= 1 && pageNo < totalPages) {
                 baseURL[baseURL.length - 1] = `${pageNo + 1}`
-                next_url = baseURL.join("/")
+                next_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
             }
 
             if (pageNo > 1 && pageNo <= totalPages) {
                 baseURL[baseURL.length - 1] = `${pageNo - 1}`
-                prev_url = baseURL.join("/")
+                prev_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
             }
 
             let minNumber = (limit * (pageNo-1))+1;
@@ -609,12 +610,12 @@ export const paginationRejectedBlogs = async(req,res,next)=>{
         const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
         if (pageNo >= 1 && pageNo < totalPages) {
             baseURL[baseURL.length - 1] = `${pageNo + 1}`
-            next_url = baseURL.join("/")
+            next_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
         }
 
         if (pageNo > 1 && pageNo <= totalPages) {
             baseURL[baseURL.length - 1] = `${pageNo - 1}`
-            prev_url = baseURL.join("/")
+            prev_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
         }
 
         let minNumber = (limit * (pageNo-1))+1;
