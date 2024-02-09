@@ -7,11 +7,11 @@ const RenderURL = process.env.renderDomain;
 const intervalCall = process.env.rederDomainCallingTimeInerval;
 
 
-export const stayAfloatAPI = () => {
+export const stayAfloatAPI =() => {
     if (intervalCall && RenderURL) {
-        setInterval(() => {
+        setInterval(async () => {
             try {
-                fetch(RenderURL)
+                await axios.get(RenderURL)
             }
             catch (e) {
                 null
