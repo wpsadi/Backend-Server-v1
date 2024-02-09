@@ -18,6 +18,12 @@ app.use(express.urlencoded({extended:true}))
     // go to /ROUTES to see different methods and routes avilable at admin
 app.use("/api/v1/admin",adminRoutes)
 
+
+// Route to keep server alive
+app.use("/keepMeAlive",(req,res)=>{
+    res.status(200)
+})
+
 //Any Invalid Route
 app.use("*",(req,res)=>{
     let response = "Invalid Route" 

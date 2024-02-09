@@ -37,12 +37,12 @@ r.route("/blogs/:BlogID/publish").get(RetrieveAdminCookie, CheckAdmin, PublishBl
 
 r.route("/blogs/:BlogID/unpublish").get(RetrieveAdminCookie, CheckAdmin, UnpublishBlog);
 
-r.route("/blogs/page/:limit/:pageNo").get(paginationBlogs)
-r.route("/blogs/page/:limit").get(AllpaginationBlogs)
+r.route("/blogs/page/:limit/:pageNo/:order").get(paginationBlogs)
+r.route("/blogs/page/:limit/:order").get(AllpaginationBlogs)
 
-r.route("/blogs/approved/page/:limit/:pageNo").get(RetrieveAdminCookie, CheckAdmin, paginationApprovedBlogs)
-r.route("/blogs/approved/page/:limit").get(RetrieveAdminCookie, CheckAdmin, AllpaginationApprovedBlogs)
+r.route("/blogs/approved/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationApprovedBlogs)
+r.route("/blogs/approved/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationApprovedBlogs)
 
-r.route("/blogs/rejected/page/:limit/:pageNo").get(RetrieveAdminCookie, CheckAdmin, paginationRejectedBlogs)
-r.route("/blogs/rejected/page/:limit").get(RetrieveAdminCookie, CheckAdmin, AllpaginationRejectedBlogs)
+r.route("/blogs/rejected/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationRejectedBlogs)
+r.route("/blogs/rejected/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationRejectedBlogs)
 export default r;
