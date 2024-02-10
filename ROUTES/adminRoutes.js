@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login } from "../CONTROLLERS/adminControllers/adminAuthController.js"
-import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs } from "../CONTROLLERS/adminControllers/BlogControllers.js"
+import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
@@ -49,4 +49,10 @@ r.route("/blogs/approved/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmi
 
 r.route("/blogs/rejected/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationRejectedBlogs)
 r.route("/blogs/rejected/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationRejectedBlogs)
+
+r.route("/blogs/published/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationPublishedBlogs)
+r.route("/blogs/published/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationPublishedBlogs)
+
+r.route("/blogs/unpublished/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationUnpublishedBlogs)
+r.route("/blogs/unpublished/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationUnpublishedBlogs)
 export default r;
