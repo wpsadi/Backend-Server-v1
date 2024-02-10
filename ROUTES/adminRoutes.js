@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin } from "../CONTROLLERS/adminControllers/adminAuthController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount } from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs, GetSpecificData } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
@@ -18,6 +18,10 @@ r.route("/NewAdmin").post(RetrieveAdminCookie, CheckAdmin, createNewAdmin)
 r.route("/PrimeAdmin").post(createPrimeAdmin)
 
 r.route("/login").post(Admin_Login)
+
+r.route("/retrieveAdmin/:passedID").get(RetrieveAdminCookie, CheckAdmin, SearchAdminFromID)
+
+r.route("/verify/:passesID").get(verifyAdminAccount)
 
 
 

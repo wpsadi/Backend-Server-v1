@@ -3,6 +3,8 @@ import { emailVal } from "../../UTILITY/emailVal.js";
 import AppError from "../../UTILITY/errClass.js";
 import "../../environment.js"
 
+import sendEmail from "../../UTILITY/SendEmails.js/nodeMailer.js";
+
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
 
@@ -47,7 +49,14 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
             AdminName, password, AdminEmail, VerifiedBy
         })
 
-        let response = "New Admin account created"
+        let link = (()=>{
+            return `${process.env.verificationURL}${NewAdmin._id}`
+        })()
+
+        // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
+        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName} You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a>`)
+
+        let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
             res_type: typeof response,
@@ -83,6 +92,12 @@ export const Admin_Login = async (req, res, next) => {
 
         if (!(await verifyAdminCredentials.comparePass(password))) {
             return next(new AppError("Incorrect Password", 400))
+        }
+        
+
+        if (!await verifyAdminCredentials.EmailVerified){
+            // SEND THE MAIL 
+            return next(new AppError("We have sent a Verification mail to your mail. We previously also sent an Account Confirmation on your email, please verify your account and then login here", 400))
         }
 
 
@@ -145,7 +160,8 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
             AdminName, password, AdminEmail, VerifiedBy
         })
 
-        let response = "New Admin account created"
+        // SEND THE MAIL
+        let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
             res_type: typeof response,
@@ -153,5 +169,52 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
         })
     } catch (e) {
         return next(new AppError(e.message, 500))
+    }
+}
+
+export const SearchAdminFromID = async(req,res,next)=>{
+    try{
+        const {passedID} = req.params;
+
+        const getDetailsOfAdmin = await Admin.findById(passedID);
+        
+        if (!getDetailsOfAdmin){
+            return next(new AppError("Invalid ID"))
+        }
+    
+        let response = {AdminName:getDetailsOfAdmin.AdminName,AdminEmail:getDetailsOfAdmin.AdminEmail};
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }catch(e){
+        return next(new AppError(e.message))
+    }
+    
+
+}
+
+export const verifyAdminAccount = async(req,res,next)=>{
+    try{
+        const {passedID} = req.paras;
+
+        const adminExists = await Admin.findByIdAndUpdate(passedID,{
+            $set:{EmailVerified:true}
+        });
+
+        if (!adminExists){
+            return next(new AppError("Admin account doesn't exist"))
+        }
+
+        let response = "Account Validated"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }
+    catch(e){
+        return next(new AppError(e.message))
     }
 }

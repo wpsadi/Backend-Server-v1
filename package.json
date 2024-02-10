@@ -11,6 +11,8 @@
   "author": "Aditya",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^2.0.0-beta.4",
+    "@sendgrid/mail": "^8.1.0",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.0.1",
@@ -25,6 +27,7 @@
     "mongoose-sequence": "^6.0.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.9",
     "nodemon": "^3.0.3",
     "npm": "^10.4.0",
     "simple-git": "^3.22.0"

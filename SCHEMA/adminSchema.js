@@ -34,6 +34,11 @@ const AdminSchema = new Schema({
         type: String,
         trim: true,
         required: [true, "Please provide your email"]
+    },
+    EmailVerified:{
+        type:Boolean,
+        default:false,
+        enum:[true,false]
     }
 }, {
     timestamps: true
