@@ -21,7 +21,7 @@ r.route("/login").post(Admin_Login)
 
 r.route("/retrieveAdmin/:passedID").get(RetrieveAdminCookie, CheckAdmin, SearchAdminFromID)
 
-r.route("/verify/:passesID").get(verifyAdminAccount)
+r.route("/verify/:passedID").get(verifyAdminAccount)
 
 
 
