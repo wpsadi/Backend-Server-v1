@@ -3,7 +3,7 @@ import { emailVal } from "../../UTILITY/emailVal.js";
 import AppError from "../../UTILITY/errClass.js";
 import "../../environment.js"
 
-import sendEmail from "../../UTILITY/SendEmails.js/nodeMailer.js";
+import sendEmail from "../../UTILITY/SendEmails.js/brevoMail.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -219,6 +219,10 @@ export const verifyAdminAccount = async(req,res,next)=>{
             return next(new AppError("Admin account doesn't exist"))
         }
 
+        if (adminExists.AdminEmail){
+            return next(new AppError("Invalid Route"))
+        }
+
         let response = "Account Validated"
         res.status(201).json({
             status: true,
@@ -227,6 +231,33 @@ export const verifyAdminAccount = async(req,res,next)=>{
         })
     }
     catch(e){
+        return next(new AppError(e.message))
+    }
+}
+
+export const DismissAdmin = async(req,res,next)=>{
+    try{
+
+        const {adminID} = req.params;
+
+        const adminExists = await Admin.findByIdAndDelete(adminID)
+
+        if(!adminExists){
+            return next(new AppError("Invalid Admin ID"))
+        }
+        // console.log(req.adminDetails)adminExists.AdminEmail
+
+        sendEmail(adminExists.AdminEmail,`[To Inform]: You are dismissed`,`Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
+
+        let response = "Admin DISMISSED";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }
+    catch(e){
+        console.log("hi")
         return next(new AppError(e.message))
     }
 }
