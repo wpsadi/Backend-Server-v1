@@ -13,7 +13,7 @@ export const stayAfloatAPI =() => {
         setInterval(async() => {
             try {
                 console.log("This is me making a call")
-                await axios.get(RenderURL)
+                await axios.get(`${RenderURL}keepMeAlive`)
             }
             catch (e) {
                 null
