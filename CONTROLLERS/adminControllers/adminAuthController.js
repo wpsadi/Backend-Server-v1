@@ -197,7 +197,7 @@ export const SearchAdminFromID = async(req,res,next)=>{
 
 export const verifyAdminAccount = async(req,res,next)=>{
     try{
-        const {passedID} = req.paras;
+        const {passedID} = req.params;
 
         const adminExists = await Admin.findByIdAndUpdate(passedID,{
             $set:{EmailVerified:true}
