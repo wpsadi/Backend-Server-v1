@@ -240,13 +240,18 @@ export const DismissAdmin = async(req,res,next)=>{
 
         const {adminID} = req.params;
 
-        const adminExists = await Admin.findByIdAndDelete(adminID)
+        const adminExists = await Admin.findById(adminID)
 
         if(!adminExists){
             return next(new AppError("Invalid Admin ID"))
         }
-        // console.log(req.adminDetails)adminExists.AdminEmail
 
+        if (adminExists.VerifiedBy == "prime"){
+            return next(new AppError("You can't terminate PRIME Admin"))
+        }
+        // console.log(req.adminDetails)adminExists.AdminEmail
+        
+        await Admin.findByIdAndDelete(adminID)
         sendEmail(adminExists.AdminEmail,`[To Inform]: You are dismissed`,`Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
 
         let response = "Admin DISMISSED";
