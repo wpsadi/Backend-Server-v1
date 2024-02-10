@@ -110,7 +110,6 @@ export const CreateBlog = async (req, res, next) => {
 
 }
 
-
 export const EditBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
@@ -247,6 +246,52 @@ export const GetBlog = async (req, res, next) => {
     }
 }
 
+export const GetSpecificData = async(req,res,next) => {
+    try{
+        const {BlogID,propertyToRetrieve} = req.params;
+
+        const whatIDontWant = ["-__v", "-_id" , "-createdAt", "-updatedAt"].join(" ")
+        const BlogExists = await Blog.findOne({ BlogID}).select(whatIDontWant);
+
+        if (!BlogExists) {
+            return next(new AppError("No blog is associated with this BlogID", 400))
+        }
+
+        const propertyAllowedToRetrieve = (()=>{
+            let toRemove = whatIDontWant.split(" ")
+            toRemove = toRemove.map(prop => prop.slice(1,prop.length))
+
+            let arr = new Array();
+            let allAvailable = Object.keys(Blog.schema.obj)
+
+            for (let x of allAvailable){
+                if (!toRemove.includes(x)){
+                    arr.push(x)
+                }
+            }
+            return arr
+        })()
+
+        if (!BlogExists[propertyToRetrieve] || !propertyAllowedToRetrieve.includes(propertyToRetrieve)){
+            return next(new AppError("No value found"))
+        }
+
+        let response = BlogExists[propertyToRetrieve];
+        res.status(201).json({
+            status: true, 
+            res_type: typeof response,
+            response: response
+        })
+
+
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
+}
+
+
+
 export const approveBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
@@ -306,13 +351,33 @@ export const PublishBlog = async (req, res, next) => {
         // console.log(AdminID)
 
         const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
-        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: { Published: true , ApprovedBy: adminID,Approved:true }
-        });
 
-        if (!BlogExists) {
+        const checkIfApproved = await Blog.findOne({BlogID});
+        if (!checkIfApproved) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
+
+        let set ={}
+
+        if (!checkIfApproved.Approved){
+            set = { Published: true , ApprovedBy: adminID,Approved:true }
+        }
+
+        else{
+            set = { Published: true}
+
+        }
+
+        const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
+            $set: set
+        });
+
+
+
+
+
+
+
 
 
 
@@ -435,6 +500,8 @@ export const paginationBlogs = async (req, res, next) => {
     }
 
 }
+
+
 
 export const AllpaginationBlogs = async (req, res, next) => {
     try {
@@ -902,3 +969,4 @@ try {
     return next(new AppError(e.message, 400))
 }
 }
+

@@ -42,6 +42,10 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
             return next(new AppError("Email is syntactically incorrect", 400))
         }
 
+        if (await Admin.countDocuments({AdminEmail})>0){
+            return next(new AppError("Account Already Exists with this email"))
+        }
+
 
 
         const NewAdmin = await Admin.create({
@@ -116,4 +120,43 @@ export const Admin_Login = async (req, res, next) => {
 
 
 
+}
+
+export const createPrimeAdmin = async (req, res, next) => {//New Admin can only be create using an already created admin account
+    try {
+
+        const { AdminName, AdminEmail, password } = req.body;
+        // const VerifiedBy = req.admin.adminID;
+        const VerifiedBy = "prime"; //-> for Prime account
+
+        if (!AdminEmail || !AdminName || !password) {
+            return next(new AppError("Fields required to create Prime Admin are empty", 400))
+        }
+        if (!VerifiedBy) {
+            return next(new AppError("No referer Admin ID found. An admin can only request to create a Account", 400))
+        }
+
+        const validatedEmail = await emailVal(AdminEmail)
+
+        if (!validatedEmail) {
+            return next(new AppError("Email is syntactically incorrect", 400))
+        }
+
+        if (await Admin.countDocuments({VerifiedBy}>0)) {
+            return next(new AppError("Prime is already been declared once."))
+        }
+
+        const NewAdmin = await Admin.create({
+            AdminName, password, AdminEmail, VerifiedBy
+        })
+
+        let response = "New Admin account created"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    } catch (e) {
+        return next(new AppError(e.message, 500))
+    }
 }
