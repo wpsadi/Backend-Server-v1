@@ -54,9 +54,9 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName} You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a>`)
+        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
 
-        let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
+        let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account. If not completed within 1-2 weeks the account will be Terminated and you will have to login again"
         res.status(201).json({
             status: true,
             res_type: typeof response,
@@ -97,6 +97,12 @@ export const Admin_Login = async (req, res, next) => {
 
         if (!await verifyAdminCredentials.EmailVerified){
             // SEND THE MAIL 
+            let link = (()=>{
+                return `${process.env.verificationURL}${verifyAdminCredentials._id}`
+            })()
+    
+            // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
+            sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi again ${verifyAdminCredentials.AdminName},You have just tried to login, but you haven't completed the process... so here we are again <br><br> You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
             return next(new AppError("We have sent a Verification mail to your mail. We previously also sent an Account Confirmation on your email, please verify your account and then login here", 400))
         }
 
@@ -161,6 +167,12 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
         })
 
         // SEND THE MAIL
+        let link = (()=>{
+            return `${process.env.verificationURL}${NewAdmin._id}`
+        })()
+
+        // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
+        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
