@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin } from "../CONTROLLERS/adminControllers/adminAuthController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin } from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs, GetSpecificData } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
@@ -25,6 +25,7 @@ r.route("/verify/:passedID").get(verifyAdminAccount)
 
 r.route("/delete/:adminID").get(RetrieveAdminCookie, CheckAdmin, DismissAdmin)
 
+r.route("/update").put(RetrieveAdminCookie, CheckAdmin, UpdateAdmin)
 
 
 //Blogs

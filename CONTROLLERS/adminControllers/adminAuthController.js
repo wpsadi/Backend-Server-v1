@@ -49,12 +49,12 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
             AdminName, password, AdminEmail, VerifiedBy
         })
 
-        let link = (()=>{
+        let link = (() => {
             return `${process.env.verificationURL}${NewAdmin._id}`
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+        sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
 
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account. If not completed within 1-2 weeks the account will be Terminated and you will have to login again"
         res.status(201).json({
@@ -93,16 +93,16 @@ export const Admin_Login = async (req, res, next) => {
         if (!(await verifyAdminCredentials.comparePass(password))) {
             return next(new AppError("Incorrect Password", 400))
         }
-        
 
-        if (!await verifyAdminCredentials.EmailVerified){
+
+        if (!await verifyAdminCredentials.EmailVerified) {
             // SEND THE MAIL 
-            let link = (()=>{
+            let link = (() => {
                 return `${process.env.verificationURL}${verifyAdminCredentials._id}`
             })()
-    
+
             // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-            sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi again ${verifyAdminCredentials.AdminName},You have just tried to login, but you haven't completed the process... so here we are again <br><br> You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+            sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi again ${verifyAdminCredentials.AdminName},You have just tried to login, but you haven't completed the process... so here we are again <br><br> You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
             return next(new AppError("We have sent a Verification mail to your mail. We previously also sent an Account Confirmation on your email, please verify your account and then login here", 400))
         }
 
@@ -158,7 +158,7 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
             return next(new AppError("Email is syntactically incorrect", 400))
         }
 
-        if (await Admin.countDocuments({VerifiedBy}>0)) {
+        if (await Admin.countDocuments({ VerifiedBy } > 0)) {
             return next(new AppError("Prime is already been declared once."))
         }
 
@@ -167,12 +167,12 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
         })
 
         // SEND THE MAIL
-        let link = (()=>{
+        let link = (() => {
             return `${process.env.verificationURL}${NewAdmin._id}`
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        sendEmail(AdminEmail,`[To Verify]: SignUp`,`Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+        sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
@@ -184,42 +184,42 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
     }
 }
 
-export const SearchAdminFromID = async(req,res,next)=>{
-    try{
-        const {passedID} = req.params;
+export const SearchAdminFromID = async (req, res, next) => {
+    try {
+        const { passedID } = req.params;
 
         const getDetailsOfAdmin = await Admin.findById(passedID);
-        
-        if (!getDetailsOfAdmin){
+
+        if (!getDetailsOfAdmin) {
             return next(new AppError("Invalid ID"))
         }
-    
-        let response = {AdminName:getDetailsOfAdmin.AdminName,AdminEmail:getDetailsOfAdmin.AdminEmail};
+
+        let response = { AdminName: getDetailsOfAdmin.AdminName, AdminEmail: getDetailsOfAdmin.AdminEmail };
         res.status(201).json({
             status: true,
             res_type: typeof response,
             response: response
         })
-    }catch(e){
+    } catch (e) {
         return next(new AppError(e.message))
     }
-    
+
 
 }
 
-export const verifyAdminAccount = async(req,res,next)=>{
-    try{
-        const {passedID} = req.params;
+export const verifyAdminAccount = async (req, res, next) => {
+    try {
+        const { passedID } = req.params;
 
-        const adminExists = await Admin.findByIdAndUpdate(passedID,{
-            $set:{EmailVerified:true}
+        const adminExists = await Admin.findByIdAndUpdate(passedID, {
+            $set: { EmailVerified: true }
         });
 
-        if (!adminExists){
+        if (!adminExists) {
             return next(new AppError("Admin account doesn't exist"))
         }
 
-        if (adminExists.AdminEmail){
+        if (!!adminExists.AdminEmail) {
             return next(new AppError("Invalid Route"))
         }
 
@@ -230,29 +230,29 @@ export const verifyAdminAccount = async(req,res,next)=>{
             response: response
         })
     }
-    catch(e){
+    catch (e) {
         return next(new AppError(e.message))
     }
 }
 
-export const DismissAdmin = async(req,res,next)=>{
-    try{
+export const DismissAdmin = async (req, res, next) => {
+    try {
 
-        const {adminID} = req.params;
+        const { adminID } = req.params;
 
         const adminExists = await Admin.findById(adminID)
 
-        if(!adminExists){
+        if (!adminExists) {
             return next(new AppError("Invalid Admin ID"))
         }
 
-        if (adminExists.VerifiedBy == "prime"){
+        if (adminExists.VerifiedBy == "prime") {
             return next(new AppError("You can't terminate PRIME Admin"))
         }
         // console.log(req.adminDetails)adminExists.AdminEmail
-        
+
         await Admin.findByIdAndDelete(adminID)
-        sendEmail(adminExists.AdminEmail,`[To Inform]: You are dismissed`,`Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
+        sendEmail(adminExists.AdminEmail, `[To Inform]: You are dismissed`, `Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
 
         let response = "Admin DISMISSED";
         res.status(201).json({
@@ -261,8 +261,75 @@ export const DismissAdmin = async(req,res,next)=>{
             response: response
         })
     }
-    catch(e){
+    catch (e) {
         console.log("hi")
         return next(new AppError(e.message))
     }
 }
+
+export const UpdateAdmin = async (req, res, next) => {
+    try {
+        const { adminID } = req.admin
+
+        const AdminDetails = await Admin.findById(adminID).select("-EmailVerified -VerifiedBy");
+
+        if (!AdminDetails) {
+            return next(new AppError("AdminID not found somehow. [This was not supposed to happen]"))
+        }
+
+        const { AdminName, AdminEmail, password } = req.body
+
+        const updatesVar = ["AdminName", "AdminEmail", "password"];
+
+        const updates = [AdminName, AdminEmail, password]
+
+        let checkEmailUpdate = false
+
+        for (let x in updates) {
+            if (updates[x]) {
+                if ((updatesVar[x] == updatesVar[1])) {
+                    const adminDet = await Admin.findByIdAndUpdate(adminID, {
+                        $set: { AdminEmail, EmailVerified: false }
+                    }, { runValidators: true })
+
+
+                    checkEmailUpdate = true
+
+
+                    continue
+                }
+                AdminDetails[x] = updatesVar[x];
+            }
+        }
+        await AdminDetails.save();
+
+        let response;
+
+        if (checkEmailUpdate) {
+            // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
+            let link = (() => {
+                return `${process.env.verificationURL}${AdminDetails._id}`
+            })()
+            sendEmail(AdminDetails.AdminEmail, `[To Verify change]: Change in Credentials`, `Hi ${AdminDetails.AdminName},You requested a change in Email addrss so to verify the new Email and to give you the Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+            response = "We have sent an email to verify your new Email. Admin Credentials UPDATED successfully. You are now Logged OUT";
+        }
+        else{
+            response = "Admin Credentials UPDATED successfully. You are now Logged OUT";
+        }
+
+
+        res.cookie("AdminToken", "")
+
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+
+
+
+    }
+    catch (e) {
+        return next(new AppError(e.message))
+    }
+} 
