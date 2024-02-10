@@ -3,7 +3,7 @@ import path from "path"
 import "../environment.js"
 import querystring from "querystring"
 const username = process.env.Github_username;
-console.log(username)
+// console.log(username)
 
 // syntax = https://raw.githubusercontent.com/wpsadi/TT/master/README.md
 const Repname = "ACM-Backend-uploads";

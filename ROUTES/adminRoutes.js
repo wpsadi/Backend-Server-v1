@@ -21,13 +21,17 @@ r.route("/login").post(Admin_Login)
 
 
 //Blogs
-r.route("/blogs")
-    .post(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), CreateBlog)
 
 r.route("/blogs/:BlogID")
     .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditBlog)
     .delete(RetrieveAdminCookie, CheckAdmin, DeleteBlog)
     .get(GetBlog)
+
+    
+r.route("/blogs")
+    .post(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), CreateBlog)
+
+
 
 r.route("/blogs/:BlogID/approve").get(RetrieveAdminCookie, CheckAdmin, approveBlog)
 

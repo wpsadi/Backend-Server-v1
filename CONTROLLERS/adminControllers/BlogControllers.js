@@ -301,28 +301,35 @@ export const rejectBlog = async (req, res, next) => {
 export const PublishBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
-        const { AdminID } = req.admin
 
-        // const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
+        const { adminID } = req.admin
+        // console.log(AdminID)
+
+        const whatIDontWant = ["-__v","-_id","-createdAt","-updatedAt"].join(" ")
         const BlogExists = await Blog.findOneAndUpdate({ BlogID }, {
-            $set: { Published: true }
+            $set: { Published: true , ApprovedBy: adminID,Approved:true }
         });
 
         if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
+
+
+
+
         if (BlogExists.FirstPublishedOn == process.env.default_FirstPublishedOn) {
             const dateTime = new Date();
             const date = (dateTime.toDateString()).split(" ");
 
             BlogExists.FirstPublishedOn = `${date[2]} ${date[1]} ${date[3]}, ${date[0]}`
+
             await BlogExists.save()
+            
         }
 
-        // console.log()
 
-        let response = "Blog is Published";
+        let response = "Blog is Approved and Published";
         res.status(201).json({
             status: true,
             res_type: typeof response,
@@ -665,6 +672,222 @@ try {
     if (limit == process.env.allBlogsKeyword) {
 
         let response = await Blog.find({Approved:false}).select(whatIDontWant).sort({BlogID : order});
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError(`use \`${process.env.allBlogsKeyword}\` at the place of limit to get all records.`, 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
+}
+
+export const paginationPublishedBlogs = async(req,res,next)=>{
+    try {
+    let { limit, pageNo,order } = req.params;
+    limit = Number(limit);
+    pageNo = Number(pageNo);
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
+
+        if (!["desc",null,"asce"].includes(order)){
+            return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
+        }
+
+        order = ["desc",null,"asce"].indexOf(order) - 1
+
+
+        let rem = totalBlogs % limit;
+        let div = (totalBlogs - rem) / limit
+
+        let totalPages = div
+
+        if (rem > 0) {
+            totalPages++
+        }
+
+        if (pageNo > totalPages) {
+            return next(new AppError("No more page is available", 400))
+        }
+
+        let next_url = null;
+        let prev_url = null;
+
+
+        const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
+        if (pageNo >= 1 && pageNo < totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo + 1}`
+            next_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
+        }
+
+        if (pageNo > 1 && pageNo <= totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo - 1}`
+            prev_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
+        }
+
+        let minNumber = (limit * (pageNo-1))+1;
+        if (minNumber <= 0) {
+            minNumber = 1
+        }
+
+        let maxNumber = (limit * pageNo)
+
+
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const response = await Blog.find({Published:true }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
+
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            next_url,
+            prev_url,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError("limit and pageNo must be positive numbers", 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
+}
+
+export const AllpaginationPublishedBlogs = async(req,res,next)=>{
+try {
+    const { limit } = req.params;
+
+    let {order} = req.params
+
+    if (!["desc",null,"asce"].includes(order)){
+        return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
+    }
+
+    order = ["desc",null,"asce"].indexOf(order) - 1
+
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (limit == process.env.allBlogsKeyword) {
+
+        let response = await Blog.find({Published:true}).select(whatIDontWant).sort({BlogID : order});
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError(`use \`${process.env.allBlogsKeyword}\` at the place of limit to get all records.`, 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
+}
+
+export const paginationUnpublishedBlogs = async(req,res,next)=>{
+    try {
+    let { limit, pageNo,order } = req.params;
+    limit = Number(limit);
+    pageNo = Number(pageNo);
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
+
+        if (!["desc",null,"asce"].includes(order)){
+            return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
+        }
+
+        order = ["desc",null,"asce"].indexOf(order) - 1
+
+
+        let rem = totalBlogs % limit;
+        let div = (totalBlogs - rem) / limit
+
+        let totalPages = div
+
+        if (rem > 0) {
+            totalPages++
+        }
+
+        if (pageNo > totalPages) {
+            return next(new AppError("No more page is available", 400))
+        }
+
+        let next_url = null;
+        let prev_url = null;
+
+
+        const baseURL = `${req.protocol}://${req.get("host")}${req.originalUrl}`.split("/")
+        if (pageNo >= 1 && pageNo < totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo + 1}`
+            next_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
+        }
+
+        if (pageNo > 1 && pageNo <= totalPages) {
+            baseURL[baseURL.length - 1] = `${pageNo - 1}`
+            prev_url = [...baseURL,["desc",null,"asce"][order+1]].join("/")
+        }
+
+        let minNumber = (limit * (pageNo-1))+1;
+        if (minNumber <= 0) {
+            minNumber = 1
+        }
+
+        let maxNumber = (limit * pageNo)
+
+
+        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const response = await Blog.find({Published:false }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
+
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            total_records: totalBlogs,
+            next_url,
+            prev_url,
+            response: response
+        })
+    }
+    else {
+        return next(new AppError("limit and pageNo must be positive numbers", 400))
+    }
+} catch (e) {
+    return next(new AppError(e.message, 400))
+}
+}
+
+export const AllpaginationUnpublishedBlogs = async(req,res,next)=>{
+try {
+    const { limit } = req.params;
+
+    let {order} = req.params
+
+    if (!["desc",null,"asce"].includes(order)){
+        return next(new AppError("Specify the order [asce or desc] to sort the data accordingly"))
+    }
+
+    order = ["desc",null,"asce"].indexOf(order) - 1
+
+
+    const totalBlogs = await Blog.countDocuments({Approved:false});
+    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+
+    if (limit == process.env.allBlogsKeyword) {
+
+        let response = await Blog.find({Published:false}).select(whatIDontWant).sort({BlogID : order});
         res.status(201).json({
             status: true,
             res_type: typeof response,

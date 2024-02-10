@@ -55,7 +55,7 @@ const blogSchema = new Schema({
         default: process.env.default_FirstPublishedOn
     },
     Published:{
-        type:String,
+        type:Boolean,
         default:false
     },
     LastUpdatedOn: { // value set by pre('save')
