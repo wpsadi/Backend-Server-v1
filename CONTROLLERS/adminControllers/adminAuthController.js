@@ -42,11 +42,6 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
             return next(new AppError("Email is syntactically incorrect", 400))
         }
 
-        if (await Admin.countDocuments({AdminEmail})>0){
-            return next(new AppError("Account Already Exists with this email"))
-        }
-
-
 
         const NewAdmin = await Admin.create({
             AdminName, password, AdminEmail, VerifiedBy
