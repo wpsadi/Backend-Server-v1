@@ -219,7 +219,7 @@ export const verifyAdminAccount = async (req, res, next) => {
             return next(new AppError("Admin account doesn't exist"))
         }
 
-        if (!!adminExists.AdminEmail) {
+        if (adminExists.EmailVerified) {
             return next(new AppError("Invalid Route"))
         }
 
