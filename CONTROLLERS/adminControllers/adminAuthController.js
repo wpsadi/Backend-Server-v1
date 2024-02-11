@@ -381,35 +381,41 @@ export const forgeAdminChnges = async (req, res, next) => {
         const { ChngeID } = req.params;
         const updates = await UpdateModelAdmin.findByIdAndDelete(ChngeID).select("-_id -expiresAt -createdAt -__v")
 
-        if (!updates){
+        if (!updates) {
             return next(new AppError("Invalid Route"))
         }
 
         // console.log(updates)
 
-        let keys = Object.keys(updates)
+        // console.log(UpdateModelAdmin.schema)
+        let keys = Object.keys(updates._doc)
+        
         let arr = new Array();
 
+        // console.log(keys)
 
 
-        for (let x of keys){
-            if (x !="UpdateIn"){
+
+        for (let x of keys) {
+            if (x == "UpdateIn") {
                 continue
             }
             arr.push(x)
         }
 
+        // console.log(keys, arr)
+
         let body = {};
 
-        for (let x of arr){
-             body[x] = updates[x]
+        for (let x of arr) {
+            body[x] = updates[x]
         }
 
-        console.log(updates.UpdateIn,body)
+        // console.log(updates.UpdateIn, body)
 
-        await UpdateModelAdmin.findByIdAndUpdate(updates.UpdateIn,{
-            $set:body
-        },{runValidators:true})
+        await Admin.findByIdAndUpdate(updates.UpdateIn, {
+            $set: body
+        }, { runValidators: true })
 
         let response = "Changes Validated"
         res.status(201).json({
