@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "git-user-name": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
+    "marked": "^12.0.0",
     "mongoose": "^8.1.1",
     "mongoose-sequence": "^6.0.1",
     "mongoose-ttl": "^0.0.3",
