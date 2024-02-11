@@ -3,7 +3,7 @@ import { emailVal } from "../../UTILITY/emailVal.js";
 import AppError from "../../UTILITY/errClass.js";
 import "../../environment.js"
 
-import sendEmail from "../../UTILITY/SendEmails.js/brevoMail.js";
+import sendEmail from "../../UTILITY/finalMailService.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -14,7 +14,7 @@ export const pong = async (req, res) => {
         response: response
     })
 }
-
+ 
 export const sendConfirmationOfAdmin = async (req, res, next) => {
     let response = req.admin
     res.status(200).json({
