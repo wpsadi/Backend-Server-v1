@@ -6,6 +6,7 @@ import "../../environment.js"
 import { Blog } from "../../SCHEMA/blogSchema.js";
 import fs from "fs/promises"
 import cloudinary from "cloudinary"
+import sendEmail from "../../UTILITY/finalMailService.js";
 
 //Blogs-AdminRoutes
 
@@ -308,6 +309,12 @@ export const approveBlog = async (req, res, next) => {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
+        if (BlogExists.Approved = true){
+            return next(new AppError("Already approved"))
+        }
+
+        sendEmail(req.adminDetails.AdminEmail,"[To Inform]: Blog Approved",`Hi ${req.adminDetails.AdminName}, you have approved a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}`)
+
         let response = "Approved";
         res.status(201).json({
             status: true,
@@ -331,6 +338,13 @@ export const rejectBlog = async (req, res, next) => {
         if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
+
+        if (BlogExists.ApprovedBy == "None" && BlogExists.Published == false && BlogExists.Approved == false){
+            return next(new AppError("Already Rejected"))
+        }
+
+        sendEmail(req.adminDetails.AdminEmail,"[To Inform]: Blog Rejected",`Hi ${req.adminDetails.AdminName}, you have rejected a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>${Published && "It is also UNPUBLISHED"}`)
+
 
         let response = "Blog Approval is REVOKED. It will also be UNPUBLISH";
         res.status(201).json({
@@ -374,15 +388,6 @@ export const PublishBlog = async (req, res, next) => {
 
 
 
-
-
-
-
-
-
-
-
-
         if (BlogExists.FirstPublishedOn == process.env.default_FirstPublishedOn) {
             const dateTime = new Date();
             const date = (dateTime.toDateString()).split(" ");
@@ -392,6 +397,13 @@ export const PublishBlog = async (req, res, next) => {
             await BlogExists.save()
             
         }
+
+        if (BlogExists.Published == true){
+            return next(new AppError("Already Published"))
+        }
+
+
+        sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] Published`,`Hi ${req.adminDetails.AdminName}, you have published a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}`)
 
 
         let response = "Blog is Approved and Published";
@@ -417,6 +429,14 @@ export const UnpublishBlog = async (req, res, next) => {
         if (!BlogExists) {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
+
+        if (BlogExists.Published == false){
+            return next(new AppError("Already UnPublished"))
+        }
+
+
+        sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] UnPublished`,`Hi ${req.adminDetails.AdminName}, you have <u>unpublished</u> a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}`)
+
 
         let response = "Blog is UNPUBLISHED";
         res.status(201).json({
