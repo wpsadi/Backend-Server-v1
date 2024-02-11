@@ -5,6 +5,7 @@ import "../../environment.js"
 
 import sendEmail from "../../UTILITY/finalMailService.js";
 import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
+import updatesInAdmin from "../../SCHEMA/updatesInAdmin.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -400,6 +401,8 @@ export const forgeAdminChnges = async (req, res, next) => {
         for (let x in arr){
              body[x] = arr[x]
         }
+
+        console.log(updates.UpdateIn,body)
 
         await UpdateModelAdmin.findByIdAndUpdate(updates.UpdateIn,{
             $set:body
