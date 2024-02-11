@@ -399,7 +399,7 @@ export const forgeAdminChnges = async (req, res, next) => {
         let body = {};
 
         for (let x of arr){
-             body[x] = arr[x]
+             body[x] = updates[x]
         }
 
         console.log(updates.UpdateIn,body)
