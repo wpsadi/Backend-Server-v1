@@ -4,6 +4,7 @@ import AppError from "../../UTILITY/errClass.js";
 import "../../environment.js"
 
 import sendEmail from "../../UTILITY/finalMailService.js";
+import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -14,7 +15,7 @@ export const pong = async (req, res) => {
         response: response
     })
 }
- 
+
 export const sendConfirmationOfAdmin = async (req, res, next) => {
     let response = req.admin
     res.status(200).json({
@@ -262,7 +263,7 @@ export const DismissAdmin = async (req, res, next) => {
         })
     }
     catch (e) {
-        console.log("hi")
+        // console.log("hi")
         return next(new AppError(e.message))
     }
 }
@@ -284,13 +285,22 @@ export const UpdateAdmin = async (req, res, next) => {
         const updates = [AdminName, AdminEmail, password]
 
         let checkEmailUpdate = false
+        let checkPasswordUpdate = false
+
+        let body = {}
 
         for (let x in updates) {
             if (updates[x]) {
+
                 if ((updatesVar[x] == updatesVar[1])) {
-                    const adminDet = await Admin.findByIdAndUpdate(adminID, {
-                        $set: { AdminEmail, EmailVerified: false }
-                    }, { runValidators: true })
+                    const validatedEmail = await emailVal(AdminEmail)
+
+                    if (!validatedEmail) {
+                        return next(new AppError("Email is syntactically incorrect", 400))
+                    }
+
+
+                    body[updatesVar[x]] = updates[x]
 
 
                     checkEmailUpdate = true
@@ -298,23 +308,54 @@ export const UpdateAdmin = async (req, res, next) => {
 
                     continue
                 }
-                AdminDetails[x] = updatesVar[x];
+                if (updatesVar[x] == updatesVar[2]) {
+                    checkPasswordUpdate = true
+                }
+                body[updatesVar[x]] = updates[x]
             }
         }
-        await AdminDetails.save();
+
+        const UpdateIn = adminID
+        // console.log(UpdateIn)
+
+        let requestChnge
+
+        if (await UpdateModelAdmin.countDocuments({ UpdateIn }) > 0) {
+            requestChnge = await UpdateModelAdmin.findOne({ UpdateIn })
+            for (let i in body) {
+                requestChnge[i] = body[i]
+            }
+            requestChnge["UpdateIn"] = UpdateIn
+        }
+        else {
+            requestChnge = await UpdateModelAdmin.create(body)
+            for (let i in body) {
+                requestChnge[i] = body[i]
+            }
+            requestChnge["UpdateIn"] = UpdateIn
+        }
+        requestChnge["expiresAt"] = new Date(Date.now() + (30 * 60 * 1000))
+        await requestChnge.save();
 
         let response;
+        // console.log(AdminDetails)
 
         if (checkEmailUpdate) {
             // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
             let link = (() => {
-                return `${process.env.verificationURL}${AdminDetails._id}`
+                return `${process.env.verificationURL}changes/${requestChnge._id}`
             })()
-            sendEmail(AdminDetails.AdminEmail, `[To Verify change]: Change in Credentials`, `Hi ${AdminDetails.AdminName},You requested a change in Email addrss so to verify the new Email and to give you the Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+            sendEmail(body["AdminEmail"], `[To Verify change]: Change in Credentials`, `Hi ${body["AdminName"] || AdminDetails.AdminName},You requested a change in Email address so to verify the new Email and to give you the Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min the changes will be Terminated and you will have to create again. <u>If you don't know about ${process.env.AboutTheProject} then ignore this Email</u><br><br><b>In case you know: If you did not requested these changes then contact the admin ASAP </b>`)
             response = "We have sent an email to verify your new Email. Admin Credentials UPDATED successfully. You are now Logged OUT";
         }
-        else{
-            response = "Admin Credentials UPDATED successfully. You are now Logged OUT";
+        else {
+            let link = (() => {
+                return `${process.env.verificationURL}${requestChnge._id}`
+            })()
+            // console.log(AdminDetails)
+            sendEmail(AdminDetails.AdminEmail, `[To Verify change]: Change in Credentials`, `Hi ${body["AdminEmail"] || AdminDetails.AdminName},You requested a change in Login Credentials for Admin access of ${process.env.AboutTheProject} so to verify if you really requested it . To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min weeks the changes will be Terminated and you will have to create again. <b>If you did not requested these changes and </b>`)
+
+            response = "We have SENT you a verification Email. We have Admin Credentials UPDATED successfully. You are now Logged OUT";
         }
 
 
@@ -332,4 +373,50 @@ export const UpdateAdmin = async (req, res, next) => {
     catch (e) {
         return next(new AppError(e.message))
     }
-} 
+}
+
+export const forgeAdminChnges = async (req, res, next) => {
+    try {
+        const { ChngeID } = req.params;
+        const updates = await UpdateModelAdmin.findByIdAndDelete(ChngeID).select("-_id -expiresAt -createdAt -__v")
+
+        if (!updates){
+            return next(new AppError("Invalid Route"))
+        }
+
+        let keys = Object.keys(updates)
+        let arr = new Array();
+
+
+
+        for (let x of keys){
+            if (x !="UpdateIn"){
+                continue
+            }
+        }
+
+        let body = {};
+
+        for (let x in arr){
+             body[x] = arr[x]
+        }
+
+        await UpdateModelAdmin.findByIdAndUpdate(updates.UpdateIn,{
+            $set:body
+        },{runValidators:true})
+
+        let response = "Changes Validated"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+
+
+
+    } catch (e) {
+        return next(new AppError(e.message))
+    }
+
+
+}

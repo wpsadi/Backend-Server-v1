@@ -116,7 +116,7 @@ export const EditBlog = async (req, res, next) => {
         const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
 
         let BlogCategory = req.body.BlogCategory;
-        console.log(!!BlogCategory)
+        // console.log(!!BlogCategory)
         if (!!BlogCategory) {
             BlogCategory = (function () {
                 BlogCategory = BlogCategory.split(";");
