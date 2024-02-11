@@ -385,6 +385,8 @@ export const forgeAdminChnges = async (req, res, next) => {
             return next(new AppError("Invalid Route"))
         }
 
+        // console.log(updates)
+
         let keys = Object.keys(updates)
         let arr = new Array();
 
@@ -394,6 +396,7 @@ export const forgeAdminChnges = async (req, res, next) => {
             if (x !="UpdateIn"){
                 continue
             }
+            arr.push(x)
         }
 
         let body = {};
