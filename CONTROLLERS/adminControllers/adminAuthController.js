@@ -6,6 +6,7 @@ import "../../environment.js"
 import sendEmail from "../../UTILITY/finalMailService.js";
 import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
 import updatesInAdmin from "../../SCHEMA/updatesInAdmin.js";
+import { temp1 } from "../../UTILITY/EmailTemplates.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -174,7 +175,8 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+        const email = temp1(AdminName,link)
+        sendEmail(AdminEmail,email[0],email[1])
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
