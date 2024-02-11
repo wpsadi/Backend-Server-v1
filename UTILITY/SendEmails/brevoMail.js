@@ -7,7 +7,7 @@ const sendEmail = async function (email, subject, message) {
   let transporter = nodemailer.createTransport({
     host: process.env.Brevo_SMTP_HOST,
     port: process.env.Brevo_SMTP_PORT,
-    secure:true, // true for 465, false for other ports
+    secure:false, // true for 465, false for other ports
     auth: {
       user: process.env.Brevo_SMTP_USERNAME,
       pass: process.env.Brevo_SMTP_PASSWORD,
