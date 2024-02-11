@@ -1,6 +1,6 @@
 import marked from "./Mark_to_html.js"
 
-// temp1 - to send email to give verification access
+// temp1 - to send email to give verification access to Admin Panel
 export const temp1 = (...args)=>{
     const subject = `Verify Your Account Access with USS-ACM Admin Panel`
     const mail = `
