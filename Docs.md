@@ -1,4 +1,7 @@
 # Rebuilding the ACM Website using MERN stack
+
+To keep the server awake, use cron job
+
 `These docs cover all the RestAPI routes built using Express,MongoDB and a whole lot of dependencies`
 
 *All the files are treated as ModuleJS{require won't work, instead use `import`}*

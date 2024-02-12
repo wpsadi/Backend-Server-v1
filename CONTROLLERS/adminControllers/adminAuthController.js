@@ -7,6 +7,7 @@ import sendEmail from "../../UTILITY/finalMailService.js";
 import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
 import { temp1, temp2 } from "../../UTILITY/EmailTemplates.js";
 import AdminSessionModel from "../../SCHEMA/AdminLoginSessions.js";
+import adminIPLog from "../../SCHEMA/IpLogsAdminLoginPreventAbuse.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -17,6 +18,10 @@ export const pong = async (req, res) => {
         response: response
     })
 }
+
+// export const getAllAdmins = async(req,res,next)=>{
+
+// }
 
 export const sendConfirmationOfAdmin = async (req, res, next) => {
     let response = req.admin
@@ -57,7 +62,7 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+        await sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi ${AdminName}, You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
 
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account. If not completed within 1-2 weeks the account will be Terminated and you will have to login again"
         res.status(201).json({
@@ -81,9 +86,9 @@ export const Admin_Login = async (req, res, next) => {
 
         const validatedEmail = await emailVal(AdminEmail)
 
-        if (!validatedEmail) { 
+        if (!validatedEmail) {
             return next(new AppError("Email is syntactically incorrect", 400))
-        } 
+        }
 
         const verifyAdminCredentials = await Admin.findOne({ AdminEmail }).select("+password")
 
@@ -97,17 +102,48 @@ export const Admin_Login = async (req, res, next) => {
             return next(new AppError("Incorrect Password", 400))
         }
 
+        let IPLog = await adminIPLog.findOne({ ip: req.ip || req.connection.remoteAddress})
+        if (!IPLog){
+            IPLog = await adminIPLog.create({ ip: req.ip || req.connection.remoteAddress, adminLoginRequests:[{EmailID:AdminEmail}]})
+        }        
 
-        if (!await verifyAdminCredentials.EmailVerified) {
+        let AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
+        let index = AllMailsTried.indexOf(AdminEmail);
+
+        if (index == -1){
+            IPLog.adminLoginRequests = [...IPLog.adminLoginRequests,{EmailID:AdminEmail}]
+
+        }
+
+        AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
+        index = AllMailsTried.indexOf(AdminEmail);
+
+        
+
+        if (!IPLog) {
+            return next("unable to log your IP. So we can't process your request at the moment")
+        }
+
+
+        if (!await verifyAdminCredentials.EmailVerified && AllMailsTried.include(AdminEmail)) {
             // SEND THE MAIL 
+
+            if (IPLog.adminLoginRequests[index].EmailVerify >= process.env.maxVerifyEmailMail){
+                return next(new AppError("We have sent enough number of Email Verification to Your Mail Address for now. Limit Reached. Try after a cooling period of 3 hrs"))
+            }
+
             let link = (() => {
                 return `${process.env.verificationURL}${verifyAdminCredentials._id}`
             })()
 
             // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-            sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi again ${verifyAdminCredentials.AdminName},You have just tried to login, but you haven't completed the process... so here we are again <br><br> You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+            await sendEmail(AdminEmail, `[To Verify]: SignUp`, `Hi again ${verifyAdminCredentials.AdminName},You have just tried to login, but you haven't completed the process... so here we are again <br><br> You are given Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 1-2 weeks the account will be Terminated and you will have to create again`)
+            IPLog.adminLoginRequests[index].EmailVerify++;
+            IPLog.save();
             return next(new AppError("We have sent a Verification mail to your mail. We previously also sent an Account Confirmation on your email, please verify your account and then login here", 400))
         }
+
+
 
 
 
@@ -118,24 +154,32 @@ export const Admin_Login = async (req, res, next) => {
             httpOnly: true,
             // sameSite:none,
             secure: true,
-            maxAge: 12* 60 * 60 * 1000    // 12 hours
+            maxAge: 12 * 60 * 60 * 1000    // 12 hours
         }
 
         // console.log(verifyAdminCredentials)
 
-        const createSession = await AdminSessionModel.create({adminID:verifyAdminCredentials._id})
+        const createSession = await AdminSessionModel.create({ adminID: verifyAdminCredentials._id })
 
         // console.log(createSession,createSession._id)
         // console.log(createSession["_id"])
+        if (IPLog.adminLoginRequests[index].LoginAuthMail >= process.env.maxLoginAuthMail){
+            return next(new AppError("We have sent enough number of Authorization emails to Your Mail Address for now. Limit Reached. Try after a cooling period of 3 hrs"))
+        }
 
         const Authorizelink = `${process.env.authorizeURL}${createSession.id}`;
         const Revokelink = `${process.env.rejectURL}${createSession.id}`
-        const mail = temp2(verifyAdminCredentials.AdminName,Authorizelink,Revokelink)
-        sendEmail(AdminEmail,mail[0],mail[1]) 
+        const mail = temp2(verifyAdminCredentials.AdminName, Authorizelink, Revokelink)
+        await sendEmail(AdminEmail, mail[0], mail[1])
+
+        console.log(IPLog)
+        console.log(IPLog.adminLoginRequests[index])
+        IPLog.adminLoginRequests[index].LoginAuthMail++;
+        IPLog.save();
 
         const AdminToken = await createSession.genJWT()
 
-        
+
         res.cookie("AdminToken", AdminToken, CookieOptions)
 
         let response = await verifyAdminCredentials.details()
@@ -189,8 +233,8 @@ export const createPrimeAdmin = async (req, res, next) => {//New Admin can only 
         })()
 
         // sendEmail(AdminEmail,"") // SEND THE MAIL HERE
-        const email = temp1(AdminName,link)
-        sendEmail(AdminEmail,email[0],email[1])
+        const email = temp1(AdminName, link)
+        await sendEmail(AdminEmail, email[0], email[1])
         let response = "We have sent a Verfication link on the email provided. Please complete the process to initiate the account"
         res.status(201).json({
             status: true,
@@ -270,7 +314,7 @@ export const DismissAdmin = async (req, res, next) => {
         // console.log(req.adminDetails)adminExists.AdminEmail
 
         await Admin.findByIdAndDelete(adminID)
-        sendEmail(adminExists.AdminEmail, `[To Inform]: You are dismissed`, `Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
+        await sendEmail(adminExists.AdminEmail, `[To Inform]: You are dismissed`, `Hi ${adminExists.AdminName}, we have sent you this email to inform you that:<br> You no longer will have access to Admin panel of ${process.env.AboutTheProject}. Your Credentials will no longer be valid on the login portal. <br><br> You were Dismissed by <b>${req.adminDetails.AdminName}</b> `)
 
         let response = "Admin DISMISSED";
         res.status(201).json({
@@ -364,7 +408,7 @@ export const UpdateAdmin = async (req, res, next) => {
             let link = (() => {
                 return `${process.env.verificationURL}changes/${requestChnge._id}`
             })()
-            sendEmail(body["AdminEmail"], `[To Verify change]: Change in Credentials`, `Hi ${body["AdminName"] || AdminDetails.AdminName},You requested a change in Email address so to verify the new Email and to give you the Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min the changes will be Terminated and you will have to create again. <u>If you don't know about ${process.env.AboutTheProject} then ignore this Email</u><br><br><b>In case you know: If you did not requested these changes then contact the admin ASAP </b>`)
+            await sendEmail(body["AdminEmail"], `[To Verify change]: Change in Credentials`, `Hi ${body["AdminName"] || AdminDetails.AdminName},You requested a change in Email address so to verify the new Email and to give you the Admin Access to ${process.env.AboutTheProject}. To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min the changes will be Terminated and you will have to create again. <u>If you don't know about ${process.env.AboutTheProject} then ignore this Email</u><br><br><b>In case you know: If you did not requested these changes then contact the admin ASAP </b>`)
             response = "We have sent an email to verify your new Email. Admin Credentials UPDATED successfully. You are now Logged OUT";
         }
         else {
@@ -372,7 +416,7 @@ export const UpdateAdmin = async (req, res, next) => {
                 return `${process.env.verificationURL}${requestChnge._id}`
             })()
             // console.log(AdminDetails)
-            sendEmail(AdminDetails.AdminEmail, `[To Verify change]: Change in Credentials`, `Hi ${body["AdminEmail"] || AdminDetails.AdminName},You requested a change in Login Credentials for Admin access of ${process.env.AboutTheProject} so to verify if you really requested it . To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min weeks the changes will be Terminated and you will have to create again. <b>If you did not requested these changes and </b>`)
+            await sendEmail(AdminDetails.AdminEmail, `[To Verify change]: Change in Credentials`, `Hi ${body["AdminEmail"] || AdminDetails.AdminName},You requested a change in Login Credentials for Admin access of ${process.env.AboutTheProject} so to verify if you really requested it . To confirm this <br><br> Click the below Link <br><br><br> <a href="${link}">${link}</a><br><br><br>If not completed within 30min weeks the changes will be Terminated and you will have to create again. <b>If you did not requested these changes and </b>`)
 
             response = "We have SENT you a verification Email. We have Admin Credentials UPDATED successfully. You are now Logged OUT";
         }
@@ -407,7 +451,7 @@ export const forgeAdminChnges = async (req, res, next) => {
 
         // console.log(UpdateModelAdmin.schema)
         let keys = Object.keys(updates._doc)
-        
+
         let arr = new Array();
 
         // console.log(keys)
@@ -451,78 +495,78 @@ export const forgeAdminChnges = async (req, res, next) => {
 
 }
 
-export const AllowAdminSession =async (req,res,next)=>{
-    try{
-        const {passedSessionID} = req.params;
+export const AllowAdminSession = async (req, res, next) => {
+    try {
+        const { passedSessionID } = req.params;
 
         const session = await AdminSessionModel.findById(passedSessionID);
-    
-        if (!session){
-            return next(new AppError("Invalid Route"))
-        }
-    
-        if (session.Approved == true){
+
+        if (!session) {
             return next(new AppError("Invalid Route"))
         }
 
-        if (session.Revoked != session.Approved){
+        if (session.Approved == true) {
+            return next(new AppError("Invalid Route"))
+        }
+
+        if (session.Revoked != session.Approved) {
             return next(new AppError("Session is Already Rejected Once"))
         }
-    
+
         session.Approved = true
-    
+
         await session.save();
-    
+
         let response = "Session Successfully Authorised"
         res.status(201).json({
             status: true,
             res_type: typeof response,
             response: response
         })
-    
-    
+
+
     }
-    catch(e){
+    catch (e) {
         return next(new AppError(e.message))
     }
-    
+
 
 }
 
-export const RevokeAdminSession =async (req,res,next)=>{
-    try{
-        const {passedSessionID} = req.params;
+export const RevokeAdminSession = async (req, res, next) => {
+    try {
+        const { passedSessionID } = req.params;
 
         const session = await AdminSessionModel.findById(passedSessionID);
-    
-        if (!session){
-            return next(new AppError("Invalid Route"))
-        }
-    
-        if (session.Revoked == true){
+
+        if (!session) {
             return next(new AppError("Invalid Route"))
         }
 
-        if (session.Revoked != session.Approved){
+        if (session.Revoked == true) {
+            return next(new AppError("Invalid Route"))
+        }
+
+        if (session.Revoked != session.Approved) {
             return next(new AppError("Session is Already Approved Once"))
         }
-    
+
         session.Revoked = true
-    
+
         await session.save();
-    
+
         let response = "Session Successfully Revoked"
         res.status(201).json({
             status: true,
             res_type: typeof response,
             response: response
         })
-    
-    
+
+
     }
-    catch(e){
+    catch (e) {
         return next(new AppError(e.message))
     }
-    
+
 
 }

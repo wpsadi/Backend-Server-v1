@@ -16,7 +16,7 @@ cloudinary.config({
 const PORT = process.env.PORT
 app.listen(PORT,async ()=>{
     await dbConnect();
-
+    // stayAfloatAPI() //To keep server Upload
     // test()
     console.log(`Server is running at PORT -> ${PORT}\n`)
 })
