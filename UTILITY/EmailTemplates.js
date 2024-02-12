@@ -26,4 +26,36 @@ export const temp1 = (...args)=>{
     return [subject,marked(mail)]
 }
 
+export const temp2 = (...args)=>{
+    const subject = `Login Attempt on Your Account`;
+    const mail=  `Dear ${args[0]},
+
+We hope this message finds you well. 
+
+We recently detected a login attempt on your account that appears to be from an unfamiliar location or device. As part of our ongoing efforts to ensure the security of your account, we wanted to reach out and confirm whether this login attempt was authorized by you.
+
+[*Authorization Link*]
+AUTHORIZE: ${args[1]}
+
+
+DENY: ${args[2]}
+
+If you recently tried to access your account from a new device or location, please disregard this message. However, if you did not initiate this login attempt, we highly recommend taking immediate action to secure your account.
+
+To secure your account:
+1. Change your password immediately.
+2. Enable two-factor authentication if you haven't already.
+3. Review your account activity and settings for any suspicious changes.
+
+
+
+If you have any concerns or require assistance, please don't hesitate to contact our support team at [support email or phone number].
+
+Thank you for your attention to this matter.
+
+Best regards,
+USS-ACM Admin Panel Team`
+
+return [subject,marked(mail)]
+}
 // console.log(await temp1("susie","http://github"))

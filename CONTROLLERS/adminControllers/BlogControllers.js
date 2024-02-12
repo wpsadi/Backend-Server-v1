@@ -536,9 +536,7 @@ export const paginationBlogs = async (req, res, next) => {
     }
 
 }
-
-
-
+ 
 export const AllpaginationBlogs = async (req, res, next) => {
     try {
         const { limit} = req.params;

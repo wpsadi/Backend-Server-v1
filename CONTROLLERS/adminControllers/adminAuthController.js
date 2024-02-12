@@ -5,8 +5,8 @@ import "../../environment.js"
 
 import sendEmail from "../../UTILITY/finalMailService.js";
 import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
-import updatesInAdmin from "../../SCHEMA/updatesInAdmin.js";
-import { temp1 } from "../../UTILITY/EmailTemplates.js";
+import { temp1, temp2 } from "../../UTILITY/EmailTemplates.js";
+import AdminSessionModel from "../../SCHEMA/AdminLoginSessions.js";
 
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
@@ -81,9 +81,9 @@ export const Admin_Login = async (req, res, next) => {
 
         const validatedEmail = await emailVal(AdminEmail)
 
-        if (!validatedEmail) {
+        if (!validatedEmail) { 
             return next(new AppError("Email is syntactically incorrect", 400))
-        }
+        } 
 
         const verifyAdminCredentials = await Admin.findOne({ AdminEmail }).select("+password")
 
@@ -110,18 +110,32 @@ export const Admin_Login = async (req, res, next) => {
         }
 
 
+
+
+
+
         let CookieOptions = {
             httpOnly: true,
             // sameSite:none,
             secure: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000    // 7 Days
+            maxAge: 12* 60 * 60 * 1000    // 12 hours
         }
 
         // console.log(verifyAdminCredentials)
 
-        const AdminToken = verifyAdminCredentials.genJWT()
+        const createSession = await AdminSessionModel.create({adminID:verifyAdminCredentials._id})
 
+        // console.log(createSession,createSession._id)
+        // console.log(createSession["_id"])
 
+        const Authorizelink = `${process.env.authorizeURL}${createSession.id}`;
+        const Revokelink = `${process.env.rejectURL}${createSession.id}`
+        const mail = temp2(verifyAdminCredentials.AdminName,Authorizelink,Revokelink)
+        sendEmail(AdminEmail,mail[0],mail[1]) 
+
+        const AdminToken = await createSession.genJWT()
+
+        
         res.cookie("AdminToken", AdminToken, CookieOptions)
 
         let response = await verifyAdminCredentials.details()
@@ -274,6 +288,8 @@ export const DismissAdmin = async (req, res, next) => {
 export const UpdateAdmin = async (req, res, next) => {
     try {
         const { adminID } = req.admin
+
+        console.log(adminID)
 
         const AdminDetails = await Admin.findById(adminID).select("-EmailVerified -VerifiedBy");
 
@@ -432,5 +448,81 @@ export const forgeAdminChnges = async (req, res, next) => {
         return next(new AppError(e.message))
     }
 
+
+}
+
+export const AllowAdminSession =async (req,res,next)=>{
+    try{
+        const {passedSessionID} = req.params;
+
+        const session = await AdminSessionModel.findById(passedSessionID);
+    
+        if (!session){
+            return next(new AppError("Invalid Route"))
+        }
+    
+        if (session.Approved == true){
+            return next(new AppError("Invalid Route"))
+        }
+
+        if (session.Revoked != session.Approved){
+            return next(new AppError("Session is Already Rejected Once"))
+        }
+    
+        session.Approved = true
+    
+        await session.save();
+    
+        let response = "Session Successfully Authorised"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    
+    
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
+    
+
+}
+
+export const RevokeAdminSession =async (req,res,next)=>{
+    try{
+        const {passedSessionID} = req.params;
+
+        const session = await AdminSessionModel.findById(passedSessionID);
+    
+        if (!session){
+            return next(new AppError("Invalid Route"))
+        }
+    
+        if (session.Revoked == true){
+            return next(new AppError("Invalid Route"))
+        }
+
+        if (session.Revoked != session.Approved){
+            return next(new AppError("Session is Already Approved Once"))
+        }
+    
+        session.Revoked = true
+    
+        await session.save();
+    
+        let response = "Session Successfully Revoked"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    
+    
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
+    
 
 }

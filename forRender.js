@@ -22,3 +22,5 @@ export const stayAfloatAPI =() => {
     }
 
 } 
+
+stayAfloatAPI()

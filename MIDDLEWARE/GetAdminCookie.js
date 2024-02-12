@@ -18,7 +18,7 @@ export const RetrieveAdminCookie = async(req,res,next)=>{
             return next(new AppError("Invalid Token bogeyman",401))
         }
 
-        let response = {adminID : payload.adminID}
+        let response = {sessionID : payload.sessionID}
 
         req.admin = response;
 
