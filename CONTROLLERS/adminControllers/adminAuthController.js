@@ -102,9 +102,9 @@ export const Admin_Login = async (req, res, next) => {
             return next(new AppError("Incorrect Password", 400))
         }
 
-        let IPLog = await adminIPLog.findOne({ ip: req.ip || req.connection.remoteAddress})
+        let IPLog = await adminIPLog.findOne({ ip: req.clientIp})
         if (!IPLog){
-            IPLog = await adminIPLog.create({ ip: req.ip || req.connection.remoteAddress, adminLoginRequests:[{EmailID:AdminEmail}]})
+            IPLog = await adminIPLog.create({ ip: req.clientIp, adminLoginRequests:[{EmailID:AdminEmail}]})
         }        
 
         let AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)

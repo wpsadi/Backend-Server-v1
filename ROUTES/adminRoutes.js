@@ -4,6 +4,7 @@ import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, 
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
+import { IP } from "../MIDDLEWARE/IP.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -17,7 +18,7 @@ r.route("/NewAdmin").post(RetrieveAdminCookie, CheckAdmin, createNewAdmin)
 //For creating a Prime Account{1st Admin}
 r.route("/PrimeAdmin").post(createPrimeAdmin)
 
-r.route("/login").post(Admin_Login)
+r.route("/login").post(IP,Admin_Login)
 
 r.route("/retrieveAdmin/:passedID").get(RetrieveAdminCookie, CheckAdmin, SearchAdminFromID)
 
