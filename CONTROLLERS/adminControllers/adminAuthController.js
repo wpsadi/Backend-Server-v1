@@ -172,8 +172,8 @@ export const Admin_Login = async (req, res, next) => {
         const mail = temp2(verifyAdminCredentials.AdminName, Authorizelink, Revokelink)
         await sendEmail(AdminEmail, mail[0], mail[1])
 
-        console.log(IPLog)
-        console.log(IPLog.adminLoginRequests[index])
+        // console.log(IPLog)
+        // console.log(IPLog.adminLoginRequests[index])
         IPLog.adminLoginRequests[index].LoginAuthMail++;
         IPLog.save();
 
@@ -333,7 +333,7 @@ export const UpdateAdmin = async (req, res, next) => {
     try {
         const { adminID } = req.admin
 
-        console.log(adminID)
+        // console.log(adminID)
 
         const AdminDetails = await Admin.findById(adminID).select("-EmailVerified -VerifiedBy");
 
