@@ -133,7 +133,12 @@ export const Admin_Login = async (req, res, next) => {
 
         let IPLog = await adminIPLog.findOne({ ip: req.clientIp})
         if (!IPLog){
+            // IPexpiresAt = new Date(Date.now() + (3* 60 * 60 * 1000))// IP log expires after 3 hourse
+            // ,expiresAt:IPexpiresAt
             IPLog = await adminIPLog.create({ ip: req.clientIp, adminLoginRequests:[{EmailID:AdminEmail}]})
+            IPLog["expiresAt"] = new Date(Date.now() + (3 * 60 * 60 * 1000))
+            await IPLog.save();
+            
         }        
 
         let AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
@@ -187,8 +192,13 @@ export const Admin_Login = async (req, res, next) => {
         }
 
         // console.log(verifyAdminCredentials)
+        const sessionExpire = new Date(Date.now() + (12* 60 * 60 * 1000))
 
-        const createSession = await AdminSessionModel.create({ adminID: verifyAdminCredentials._id })
+
+        const createSession = await AdminSessionModel.create({ adminID: verifyAdminCredentials._id})
+        
+        createSession["expiresAt"] = new Date(Date.now() + (12 * 60 * 60 * 1000))
+        await createSession.save();
 
         // console.log(createSession,createSession._id)
         // console.log(createSession["_id"])
@@ -598,4 +608,25 @@ export const RevokeAdminSession = async (req, res, next) => {
     }
 
 
+}
+
+export const RevokeFromAdminPanel = async(req,res,next) =>{
+    const {sessionID} = req.params
+    const sessionExist = await AdminSessionModel.findOne({id:sessionID})
+
+    if (!sessionExist){
+        return next(new AppError("No SessionID Found"))
+    }
+
+    sessionExist.Revoked = true;
+    sessionExist.Approved = true;
+
+    await sessionExist.save()
+
+    let response = "Access Revoked";
+    res.status(201).json({
+        status: true,
+        res_type: typeof response,
+        response: response
+    })
 }

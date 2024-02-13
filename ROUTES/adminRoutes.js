@@ -36,6 +36,7 @@ r.route("/reject/:passedSessionID").get(RevokeAdminSession);
 // in this route the reponse has array of objects with first one is the Current Logged In Admin
 r.route("/allAdmins").get(RetrieveAdminCookie, CheckAdmin, getAllAdmins) ;
 
+r.route("/revoke/:sessionID").get(RetrieveAdminCookie, CheckAdmin)
 
 //Blogs
 

@@ -11,13 +11,15 @@ const AdminSessionSchema = new Schema({
     verificationMailSentCount:{type:Number,default:0}
 })
 
-AdminSessionSchema.pre('save',function(next){
-    if (!this.isModified("createdAt")){
-        next()
-    }
+// AdminSessionSchema.pre('save',function(next){
+//     if (!this.isModified("createdAt")){
+//         next()
+//     }
 
-    this.expiresAt = new Date(Date.now() + (12* 60 * 60 * 1000))
-})
+//     this.expiresAt = new Date(Date.now() + (12* 60 * 60 * 1000))
+// })
+
+
 
 
 

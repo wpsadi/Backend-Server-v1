@@ -22,13 +22,13 @@ const adminLoginLimitIP = new Schema({
     expiresAt:{type:Date,expires:0}
 })
 
-adminLoginLimitIP.pre('save',function(next){
-    if (!this.isModified("createdAt")){
-        next()
-    }
+// adminLoginLimitIP.pre('save',function(next){
+//     if (!this.isModified("createdAt")){
+//         next()
+//     }
 
-    this.expiresAt = new Date(Date.now() + (12* 60 * 60 * 1000))
-})
+//     this.expiresAt = new Date(Date.now() + (3* 60 * 60 * 1000))
+// })
 
 
 const adminIPLog = model("Admin_IP_logins",adminLoginLimitIP)
