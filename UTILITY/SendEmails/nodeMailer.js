@@ -25,9 +25,10 @@ const sendEmail = async function (email, subject, message) {
     });
   }
   catch(e){
-    null
+    throw new Error("Some Error Occurred. This means that problem is in our mailing system")
   }
 
 };
+
 
 export default sendEmail;

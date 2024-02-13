@@ -3,6 +3,7 @@ import "../../environment.js"
 
 // async..await is not allowed in global scope, must use a wrapper
 const sendEmail = async function (email, subject, message) {
+  // throw new Error("Unable to process your request")
   // create reusable transporter object using the default SMTP transport
   try{
     let transporter = nodemailer.createTransport({
@@ -24,11 +25,12 @@ const sendEmail = async function (email, subject, message) {
     });
   }
   catch(e){
-    null
+    throw new Error("Some Error Occurred. This means that problem is in our mailing system")
   }
   
 
 };
+
 
 
 
