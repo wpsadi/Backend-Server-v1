@@ -19,9 +19,38 @@ export const pong = async (req, res) => {
     })
 }
 
-// export const getAllAdmins = async(req,res,next)=>{
+export const getAllAdmins = async(req,res,next)=>{
+    // console.log("hi")
+    try{
 
-// }
+        let AllAdmins = await Admin.find().select("-__v")
+    
+        AllAdmins = new Object(AllAdmins) // this will create a new instance of the object so that no changes can be made by mistake
+    
+        let AllIDs = AllAdmins.map((obj)=>obj.id)
+    
+        const {adminID} = req.admin
+    
+        let indexOfCurrentAccount = AllIDs.indexOf(adminID) //this will always be true since UserAdmin Checks are there in this route too
+    
+        // console.log(indexOfCurrentAccount,AllIDs,adminID)
+        if (indexOfCurrentAccount != 0){
+            let temp = AllAdmins[indexOfCurrentAccount]
+            AllAdmins[indexOfCurrentAccount] = AllAdmins[0]
+            AllAdmins[0] = temp
+        }
+
+    
+        let response = AllAdmins
+        res.status(200).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }catch(e){
+        return next(new AppError(e.message))
+    }
+}
 
 export const sendConfirmationOfAdmin = async (req, res, next) => {
     let response = req.admin
