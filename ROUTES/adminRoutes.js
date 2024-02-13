@@ -33,6 +33,7 @@ r.route("/update").put(RetrieveAdminCookie, CheckAdmin, UpdateAdmin)
 r.route("/authorize/:passedSessionID").get(AllowAdminSession)
 r.route("/reject/:passedSessionID").get(RevokeAdminSession);
 
+// in this route the reponse has array of objects with first one is the Current Logged In Admin
 r.route("/allAdmins").get(RetrieveAdminCookie, CheckAdmin, getAllAdmins) ;
 
 
