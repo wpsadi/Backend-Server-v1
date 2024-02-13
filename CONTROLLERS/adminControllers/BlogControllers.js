@@ -6,7 +6,7 @@ import "../../environment.js"
 import { Blog } from "../../SCHEMA/blogSchema.js";
 import fs from "fs/promises"
 import cloudinary from "cloudinary"
-import sendEmail from "../../UTILITY/finalMailService.js";
+import {sendEmail} from "../../UTILITY/finalMailService.js";
 
 //Blogs-AdminRoutes
 

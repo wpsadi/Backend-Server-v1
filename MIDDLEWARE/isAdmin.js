@@ -3,7 +3,7 @@ import { Admin } from "../SCHEMA/adminSchema.js"
 import { temp2 } from "../UTILITY/EmailTemplates.js"
 import AppError from "../UTILITY/errClass.js"
 import "../environment.js"
-import sendEmail from "../UTILITY/finalMailService.js"
+import {sendEmail} from "../UTILITY/finalMailService.js"
 
 // console.log(process.env.authorizeURL)
 

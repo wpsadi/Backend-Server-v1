@@ -2,4 +2,4 @@
 
 import sendEmail from "./SendEmails/brevoMail.js";
 
-export default sendEmail
+export  {sendEmail}

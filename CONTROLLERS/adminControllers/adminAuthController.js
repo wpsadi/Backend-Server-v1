@@ -3,7 +3,7 @@ import { emailVal } from "../../UTILITY/emailVal.js";
 import AppError from "../../UTILITY/errClass.js";
 import "../../environment.js"
 
-import sendEmail from "../../UTILITY/finalMailService.js";
+import {sendEmail} from "../../UTILITY/finalMailService.js";
 import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
 import { temp1, temp2 } from "../../UTILITY/EmailTemplates.js";
 import AdminSessionModel from "../../SCHEMA/AdminLoginSessions.js";
