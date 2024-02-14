@@ -6,7 +6,7 @@ export const useMiddlewareError = (err,req,res,next)=>{
     res.status(err.statusCode).json({
         success: false,
         res_type:typeof err.message,
-        message: err.message
+        response: err.message
         // stack: err.stack
     })
 }

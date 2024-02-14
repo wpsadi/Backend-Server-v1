@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins, RevokeFromAdminPanel, RevokeAllExceptCurrentAdminPanel, GetAdminSessions, Admin_Logout } from "../CONTROLLERS/adminControllers/adminAuthController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins, RevokeFromAdminPanel, RevokeAllExceptCurrentAdminPanel, GetAdminSessions, Admin_Logout, SendForgetPasswordTokenLink } from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs, GetSpecificData } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
@@ -14,6 +14,8 @@ r.use("/ping", pong)
 r.route("/autoLogin").get(RetrieveAdminCookie, CheckAdmin, sendConfirmationOfAdmin)
 
 r.route("/NewAdmin").post(RetrieveAdminCookie, CheckAdmin, createNewAdmin)
+
+r.route("/frgt-pass-token").post(SendForgetPasswordTokenLink)
 
 //For creating a Prime Account{1st Admin}
 r.route("/PrimeAdmin").post(createPrimeAdmin)

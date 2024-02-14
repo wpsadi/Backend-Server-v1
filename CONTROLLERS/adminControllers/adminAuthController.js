@@ -8,6 +8,7 @@ import UpdateModelAdmin from "../../SCHEMA/updatesInAdmin.js"
 import { temp1, temp2 } from "../../UTILITY/EmailTemplates.js";
 import AdminSessionModel from "../../SCHEMA/AdminLoginSessions.js";
 import adminIPLog from "../../SCHEMA/IpLogsAdminLoginPreventAbuse.js";
+import FrgtPassModel from "../../SCHEMA/AdminForgetPassword.js";
 
 
 export const pong = async (req, res) => {
@@ -728,6 +729,48 @@ export const RevokeAllExceptCurrentAdminPanel = async (req,res,next)=>{
 
         
         let response = "All session have been Revoked";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
+}
+
+export const SendForgetPasswordTokenLink = async(req,res,next)=>{
+    try{
+        const {AdminEmail} = req.body
+
+        if (!AdminEmail){
+            return next(new AppError("Please fill up your email with which you access the Admin Panel"))
+        }
+        
+        const AdminExist = await Admin.findOne({AdminEmail})
+
+        if (!AdminExist){
+            return next(new AppError("Admin access is not granted for this Email Address"))
+        }
+
+        if (AdminExist.EmailVerified == false){
+            return next(new AppError("You Haven't accepted the Admin Panel access Invite. Kindly Accept that then try again"))
+        }
+
+        const expiry = new Date(Date.now() +   12*60*60*1000)
+        const alreadyOnce = await FrgtPassModel.findOne({AdminEmail})
+        if (alreadyOnce){
+            return next(new AppError(`We have already send you an Email. You can't reinitialise another request until: ${new Date(alreadyOnce.expiresAt)}`))
+        }
+
+        // console.log()
+        const createResetToken = await FrgtPassModel.create({AdminEmail:AdminExist.AdminEmail,adminID:AdminExist.id,expiresAt:expiry});
+
+        await sendEmail(AdminExist.AdminEmail,"Password Change Request",`Hi ${AdminExist.AdminName},<br>We have a recieved a request to change your password. If you didn't made this request You can ignore this email.<br><br> If you made this request then here is the token:<br><b>${createResetToken.id}</b><br>Vist <a href="${"hi"}">${"hi"}</a>`)
+        
+        
+        let response = "We have sent an email containing how to reset your password"
         res.status(201).json({
             status: true,
             res_type: typeof response,
