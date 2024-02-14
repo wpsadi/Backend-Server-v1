@@ -151,8 +151,8 @@ export const Admin_Login = async (req, res, next) => {
 
         }
 
-        // AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
-        // index = AllMailsTried.indexOf(AdminEmail);
+        AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
+        index = AllMailsTried.indexOf(AdminEmail);
 
         
 
