@@ -225,7 +225,7 @@ export const Admin_Login = async (req, res, next) => {
 
         res.cookie("AdminToken", AdminToken, CookieOptions)
 
-        let response = await verifyAdminCredentials.details()
+        let response = "Please Authorize this Session. Check your Email for this"
         delete response["password"];
         // console.log(response)
         res.status(201).json({
@@ -778,6 +778,44 @@ export const SendForgetPasswordTokenLink = async(req,res,next)=>{
         })
     }
     catch(e){
+        return next(new AppError(e.message))
+    }
+}
+
+export const updatePasswordFrgt = async(req,res,next)=>{
+    try{
+        const {token,AdminEmail,password} = req.body
+
+        if (!token){
+            return next(new AppError("token not provided"))
+        }
+
+        if (!AdminEmail || !password){
+            return next(new AppError("Email and password fields are mandatory"))
+        }
+
+        const tokenCheck = await FrgtPassModel.findById(token);
+        if (!tokenCheck){
+            return next(new AppError("Please recheck your token, it is not valid or it is expired"))
+        }
+
+        if (AdminEmail != tokenCheck.AdminEmail){
+            return next(new AppError("Token doesn't belong to this Email ID"))
+        }
+
+        const toUpdate = await Admin.findById(tokenCheck.adminID,{},{runValidators:true})
+        toUpdate["password"] = password;
+        toUpdate.save();
+
+        await FrgtPassModel.findByIdAndDelete(token)
+        let response = "Password Updated Successfully";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+
+    }catch(e){
         return next(new AppError(e.message))
     }
 }

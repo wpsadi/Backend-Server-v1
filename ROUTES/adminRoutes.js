@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins, RevokeFromAdminPanel, RevokeAllExceptCurrentAdminPanel, GetAdminSessions, Admin_Logout, SendForgetPasswordTokenLink } from "../CONTROLLERS/adminControllers/adminAuthController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins, RevokeFromAdminPanel, RevokeAllExceptCurrentAdminPanel, GetAdminSessions, Admin_Logout, SendForgetPasswordTokenLink, updatePasswordFrgt } from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs, GetSpecificData } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
@@ -33,6 +33,9 @@ r.route("/verify/:passedID").get(verifyAdminAccount)
 r.route("/delete/:adminID").get(RetrieveAdminCookie, CheckAdmin, DismissAdmin)
 
 r.route("/update").put(RetrieveAdminCookie, CheckAdmin, UpdateAdmin)
+
+// this is a forget password route
+r.route("/update/password").post(updatePasswordFrgt)
 
 r.route("/authorize/:passedSessionID").get(AllowAdminSession)
 r.route("/reject/:passedSessionID").get(RevokeAdminSession);

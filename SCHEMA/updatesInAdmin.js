@@ -25,7 +25,7 @@ updateAdmin.pre("save", async function(next){
 
 
 const updatesInAdmin = model("Update_In_Admin",updateAdmin)
-
+// 30 minute expiry
 updatesInAdmin.collection.createIndex({expiresAt:1},{expireAfterSeconds:0})
 
 
