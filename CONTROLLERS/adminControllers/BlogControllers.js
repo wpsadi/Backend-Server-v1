@@ -7,6 +7,7 @@ import { Blog } from "../../SCHEMA/blogSchema.js";
 import fs from "fs/promises"
 import cloudinary from "cloudinary"
 import {sendEmail} from "../../UTILITY/finalMailService.js";
+import marked from "../../UTILITY/Mark_to_html.js";
 
 //Blogs-AdminRoutes
 
@@ -49,7 +50,7 @@ export const CreateBlog = async (req, res, next) => {
 
 
         let BlogImage = {}
-        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent, BlogCategory, BlogImage, ApprovedBy: "None" });
+        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent:marked(BlogContent), BlogCategory, BlogImage, ApprovedBy: "None" });
 
         if (!BlogAuthorEmail) {
             // const adminID = req.admin.adminID;
@@ -114,7 +115,8 @@ export const CreateBlog = async (req, res, next) => {
 export const EditBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
-        const { BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent } = req.body
+        const { BlogTitle, BlogAuthor, BlogAuthorEmail } = req.body
+        req.body["BlogContent"] = marked(req.body["BlogContent"])
 
         let BlogCategory = req.body.BlogCategory;
         // console.log(!!BlogCategory)
@@ -473,7 +475,7 @@ export const paginationBlogs = async (req, res, next) => {
         pageNo = Number(pageNo);
 
         const totalBlogs = await Blog.countDocuments();
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
         if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
@@ -516,7 +518,7 @@ export const paginationBlogs = async (req, res, next) => {
             }
 
 
-            const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+            const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
             const response = await Blog.find().select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
 
             res.status(201).json({
@@ -551,7 +553,7 @@ export const AllpaginationBlogs = async (req, res, next) => {
 
 
         const totalBlogs = await Blog.countDocuments();
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
         if (limit == process.env.allBlogsKeyword) {
 
@@ -578,7 +580,7 @@ export const paginationApprovedBlogs = async(req,res,next)=>{
         pageNo = Number(pageNo);
 
         const totalBlogs = await Blog.countDocuments({Approved:true });
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
         if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
@@ -626,7 +628,7 @@ export const paginationApprovedBlogs = async(req,res,next)=>{
             let maxNumber = (limit * pageNo)
 
 
-            const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+            const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
             const response = await Blog.find({Approved:true }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
 
             res.status(201).json({
@@ -653,7 +655,7 @@ export const AllpaginationApprovedBlogs = async(req,res,next)=>{
         let {order} = req.params
 
         const totalBlogs = await Blog.countDocuments({Approved:true});
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
         if (limit == process.env.allBlogsKeyword) {
 
@@ -687,7 +689,7 @@ export const paginationRejectedBlogs = async(req,res,next)=>{
     pageNo = Number(pageNo);
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
@@ -734,7 +736,7 @@ export const paginationRejectedBlogs = async(req,res,next)=>{
         let maxNumber = (limit * pageNo)
 
 
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
         const response = await Blog.find({Approved:false }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
 
         res.status(201).json({
@@ -768,7 +770,7 @@ try {
 
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (limit == process.env.allBlogsKeyword) {
 
@@ -795,7 +797,7 @@ export const paginationPublishedBlogs = async(req,res,next)=>{
     pageNo = Number(pageNo);
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
@@ -842,7 +844,7 @@ export const paginationPublishedBlogs = async(req,res,next)=>{
         let maxNumber = (limit * pageNo)
 
 
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
         const response = await Blog.find({Published:true }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
 
         res.status(201).json({
@@ -876,7 +878,7 @@ try {
 
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (limit == process.env.allBlogsKeyword) {
 
@@ -903,7 +905,7 @@ export const paginationUnpublishedBlogs = async(req,res,next)=>{
     pageNo = Number(pageNo);
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (!isNaN(limit) && !isNaN(pageNo) && limit > 0 && pageNo > 0) {
 
@@ -950,7 +952,7 @@ export const paginationUnpublishedBlogs = async(req,res,next)=>{
         let maxNumber = (limit * pageNo)
 
 
-        const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+        const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
         const response = await Blog.find({Published:false }).select(whatIDontWant).limit(limit).skip(limit*(pageNo-1)).sort({BlogID : order});
 
         res.status(201).json({
@@ -984,7 +986,7 @@ try {
 
 
     const totalBlogs = await Blog.countDocuments({Approved:false});
-    const whatIDontWant = ["-__v", "-_id", "-createdAt", "-updatedAt"].join(" ")
+    const whatIDontWant = ["-__v", "-createdAt", "-updatedAt"].join(" ")
 
     if (limit == process.env.allBlogsKeyword) {
 

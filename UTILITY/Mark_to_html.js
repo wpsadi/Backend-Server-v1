@@ -9,4 +9,10 @@ const marked = (text)=>{
 
 // Output the HTML
 
+console.log(marked(`#  \`hi\`  there  my love.\n
+! what are you doing  
+a`))
+console.log(marked("# hi"))
+
+
 export default marked
