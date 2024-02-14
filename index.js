@@ -4,6 +4,8 @@ import adminRoutes from "./ROUTES/adminRoutes.js"
 import { useMiddlewareError } from "./MIDDLEWARE/err.middleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { IP } from "./MIDDLEWARE/IP.js";
+import { RateAPI } from "./API-calling-rate-limit/check-rate-limit.js";
 
 const app = express();
 //Important Middleware {different from those middlewares the I made }
@@ -12,9 +14,9 @@ app.use(cookieParser())
 app.use(cors({origin:"*",credentials:true}))
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+app.use(IP,RateAPI)
 
-
-// Routes
+// Routes \
     // go to /ROUTES to see different methods and routes avilable at admin
 app.use("/api/v1/admin",adminRoutes)
 
