@@ -10,6 +10,8 @@ import {sendEmail} from "../UTILITY/finalMailService.js"
 export const CheckAdmin = async(req,res,next)=>{
     
     const {sessionID} = req.admin
+
+    req.SessionID = sessionID
     // console.log(req.admin)
     const AdminExist = await AdminSessionModel.findById(sessionID)
 

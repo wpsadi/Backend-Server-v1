@@ -9,6 +9,7 @@ import { temp1, temp2 } from "../../UTILITY/EmailTemplates.js";
 import AdminSessionModel from "../../SCHEMA/AdminLoginSessions.js";
 import adminIPLog from "../../SCHEMA/IpLogsAdminLoginPreventAbuse.js";
 
+
 export const pong = async (req, res) => {
     let response = `pong -[${req.method}]`;
 
@@ -149,8 +150,8 @@ export const Admin_Login = async (req, res, next) => {
 
         }
 
-        AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
-        index = AllMailsTried.indexOf(AdminEmail);
+        // AllMailsTried = (IPLog.adminLoginRequests).map((obj)=>obj.EmailID)
+        // index = AllMailsTried.indexOf(AdminEmail);
 
         
 
@@ -163,6 +164,7 @@ export const Admin_Login = async (req, res, next) => {
             // SEND THE MAIL 
 
             if (IPLog.adminLoginRequests[index].EmailVerify >= process.env.maxVerifyEmailMail){
+
                 return next(new AppError("We have sent enough number of Email Verification to Your Mail Address for now. Limit Reached. Try after a cooling period of 3 hrs"))
             }
 
@@ -203,6 +205,7 @@ export const Admin_Login = async (req, res, next) => {
         // console.log(createSession,createSession._id)
         // console.log(createSession["_id"])
         if (IPLog.adminLoginRequests[index].LoginAuthMail >= process.env.maxLoginAuthMail){
+            await AdminSessionModel.findByIdAndDelete(createSession.id)
             return next(new AppError("We have sent enough number of Authorization emails to Your Mail Address for now. Limit Reached. Try after a cooling period of 3 hrs"))
         }
 
@@ -236,6 +239,20 @@ export const Admin_Login = async (req, res, next) => {
 
 
 
+}
+
+export const Admin_Logout = async(req,res,next)=>{
+    try{
+        res.cookie("AdminToken","")
+        let response = "Successfully Logged Out"
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }catch(e){
+        return next(new AppError(e.message))
+    }
 }
 
 export const createPrimeAdmin = async (req, res, next) => {//New Admin can only be create using an already created admin account
@@ -611,22 +628,113 @@ export const RevokeAdminSession = async (req, res, next) => {
 }
 
 export const RevokeFromAdminPanel = async(req,res,next) =>{
-    const {sessionID} = req.params
-    const sessionExist = await AdminSessionModel.findOne({id:sessionID})
-
-    if (!sessionExist){
-        return next(new AppError("No SessionID Found"))
+    try{
+        const {sessionID} = req.params
+        const sessionExist = await AdminSessionModel.findById(sessionID)
+    
+        if (!sessionExist){
+            return next(new AppError("No SessionID Found"))
+        }
+    
+        sessionExist.Revoked = true;
+        sessionExist.Approved = true;
+    
+        await sessionExist.save()
+    
+        let response = "Access Revoked";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }
+    catch(e){
+        return next(new AppError(e.message))
     }
 
-    sessionExist.Revoked = true;
-    sessionExist.Approved = true;
+}
 
-    await sessionExist.save()
+export const GetAdminSessions = async(req,res,next)=>{
+    try{
+        
+        const sessionExist = await AdminSessionModel.find({adminID:req.admin.adminID,Revoked:false,Approved:true})
+    
+        if (sessionExist.length == 0){
+            return next(new AppError("No SessionID Found"))
+        }
 
-    let response = "Access Revoked";
-    res.status(201).json({
-        status: true,
-        res_type: typeof response,
-        response: response
-    })
+        const copySessions = new Object(sessionExist)
+
+        const AllSessionIDs = sessionExist.map((obj)=>obj.id)
+        // console.log(AllSessionIDs,req.SessionID)
+
+        let index = AllSessionIDs.indexOf(req.SessionID);
+        // console.log(index)
+
+        if (index != 0){
+            let temp = copySessions[0];
+            copySessions[0] = copySessions[index]
+            copySessions[index] = temp
+        }
+
+        let response = copySessions;
+
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+
+
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
+}
+
+export const RevokeAllExceptCurrentAdminPanel = async (req,res,next)=>{
+    try{
+        
+        const sessionExist = await AdminSessionModel.find({adminID:req.admin.adminID,Revoked:false})
+    
+        if (sessionExist.length == 0){
+            return next(new AppError("No SessionID Found"))
+        }
+
+        const AllSessionIDs = sessionExist.map((obj)=>obj.id)
+        // console.log(AllSessionIDs,req.SessionID)
+
+        let index = AllSessionIDs.indexOf(req.SessionID);
+        // console.log(index)
+
+        if (index != 0){
+            let temp = AllSessionIDs[0];
+            AllSessionIDs[0] = AllSessionIDs[index]
+            AllSessionIDs[index] = temp
+        }
+
+        if (AllSessionIDs.length == 1){
+            return next(new AppError("There are no Parallel Sessions for this Account"))
+        }
+        let RestAllSessionIDs = AllSessionIDs.slice(1,AllSessionIDs.length)
+        
+
+        for(let id of RestAllSessionIDs){
+            await AdminSessionModel.findByIdAndUpdate(id,{
+                $set:{Approved:true,Revoked:true}
+            })
+        }
+
+
+        
+        let response = "All session have been Revoked";
+        res.status(201).json({
+            status: true,
+            res_type: typeof response,
+            response: response
+        })
+    }
+    catch(e){
+        return next(new AppError(e.message))
+    }
 }

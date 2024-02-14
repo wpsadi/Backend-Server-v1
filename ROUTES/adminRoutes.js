@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins } from "../CONTROLLERS/adminControllers/adminAuthController.js"
+import { pong, sendConfirmationOfAdmin, createNewAdmin, Admin_Login, createPrimeAdmin, SearchAdminFromID, verifyAdminAccount, DismissAdmin, UpdateAdmin, forgeAdminChnges, AllowAdminSession, RevokeAdminSession, getAllAdmins, RevokeFromAdminPanel, RevokeAllExceptCurrentAdminPanel, GetAdminSessions, Admin_Logout } from "../CONTROLLERS/adminControllers/adminAuthController.js"
 import { CreateBlog, DeleteBlog, EditBlog, GetBlog, PublishBlog, UnpublishBlog, approveBlog, paginationBlogs, rejectBlog, AllpaginationBlogs, AllpaginationApprovedBlogs, paginationApprovedBlogs, paginationRejectedBlogs, AllpaginationRejectedBlogs, paginationPublishedBlogs, AllpaginationPublishedBlogs, AllpaginationUnpublishedBlogs, paginationUnpublishedBlogs, GetSpecificData } from "../CONTROLLERS/adminControllers/BlogControllers.js"
 import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
@@ -20,6 +20,8 @@ r.route("/PrimeAdmin").post(createPrimeAdmin)
 
 r.route("/login").post(IP,Admin_Login)
 
+r.route("/adminLogout").get(RetrieveAdminCookie, CheckAdmin, Admin_Logout)
+
 r.route("/retrieveAdmin/:passedID").get(RetrieveAdminCookie, CheckAdmin, SearchAdminFromID)
 
 r.route("/verify/changes/:ChngeID").get(forgeAdminChnges)
@@ -36,7 +38,9 @@ r.route("/reject/:passedSessionID").get(RevokeAdminSession);
 // in this route the reponse has array of objects with first one is the Current Logged In Admin
 r.route("/allAdmins").get(RetrieveAdminCookie, CheckAdmin, getAllAdmins) ;
 
-r.route("/revoke/:sessionID").get(RetrieveAdminCookie, CheckAdmin)
+r.route("/AllSessions").get(RetrieveAdminCookie, CheckAdmin, GetAdminSessions)
+r.route("/revoke/:sessionID").get(RetrieveAdminCookie, CheckAdmin, RevokeFromAdminPanel)
+r.route("/RevokeRestAllSessions").get(RetrieveAdminCookie, CheckAdmin, RevokeAllExceptCurrentAdminPanel)
 
 //Blogs
 
