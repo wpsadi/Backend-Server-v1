@@ -20,10 +20,6 @@ const AdminSessionSchema = new Schema({
 // })
 
 
-
-
-
-
 AdminSessionSchema.methods = {
     genJWT() {
         // console.log(this.id)
@@ -34,7 +30,6 @@ AdminSessionSchema.methods = {
 }
 
 const AdminSessionModel = model("Admin_login_sessions",AdminSessionSchema) 
-
 AdminSessionModel.collection.createIndex({expiresAt:1},{expireAfterSeconds:0})
 
 export default AdminSessionModel
