@@ -1,3 +1,6 @@
+/* The API rate limit can only be applied in minutes because Mongo has a TTL check after 1 minute
+*/
+
 import API_limit from "../SCHEMA/API-Rate-limit.js";
 import AppError from "../UTILITY/errClass.js";
 
