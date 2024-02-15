@@ -8,6 +8,7 @@ import fs from "fs/promises"
 import cloudinary from "cloudinary"
 import {sendEmail} from "../../UTILITY/finalMailService.js";
 import marked from "../../UTILITY/Mark_to_html.js";
+import { deleteFromGitHub, uploadToGitHub } from "../../UTILITY/SaveImageOnGit.js";
 
 //Blogs-AdminRoutes
 
@@ -50,7 +51,7 @@ export const CreateBlog = async (req, res, next) => {
 
 
         let BlogImage = {}
-        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent:marked(BlogContent), BlogCategory, BlogImage, ApprovedBy: "None" });
+        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent:marked(BlogContent).trim(), BlogCategory, BlogImage, ApprovedBy: "None" });
 
         if (!BlogAuthorEmail) {
             // const adminID = req.admin.adminID;
@@ -61,6 +62,18 @@ export const CreateBlog = async (req, res, next) => {
         if (req.file) {
             // console.log(req.file.path)
             // console.log(path.resolve(req.file.path))
+            try{
+                const saveOnGit = await uploadToGitHub(req.file.path,`blogs/${req.file.filename}`)
+                if (saveOnGit){
+                    createBlog.BlogImage.rawgit_url = saveOnGit
+                }
+
+            }
+            catch(e){
+                // return next(new AppError(e.message))
+                null
+            }
+
             try {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {
                     folder: 'blogs',
@@ -85,8 +98,8 @@ export const CreateBlog = async (req, res, next) => {
 
             }
             catch (e) {
-                // return next(new AppError(e.message))
                 null
+                // return next(new AppError(e.message))
 
             }
 
@@ -116,7 +129,7 @@ export const EditBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
         const { BlogTitle, BlogAuthor, BlogAuthorEmail } = req.body
-        req.body["BlogContent"] = marked(req.body["BlogContent"])
+        req.body["BlogContent"] = marked(req.body["BlogContent"]).trim()
 
         let BlogCategory = req.body.BlogCategory;
         // console.log(!!BlogCategory)
@@ -169,6 +182,26 @@ export const EditBlog = async (req, res, next) => {
             // console.log("image deleted")
             existingBlog.BlogImage.public_id = process.env.default_BlogImage_public_id;
             existingBlog.BlogImage.secure_url = process.env.default_BlogImage_secure_url;
+
+
+            //deleting file from github
+            let address_in_rep = existingBlog.BlogImage.rawgit_url.split("/")
+            address_in_rep = address_in_rep.slice(address_in_rep.length-2,address_in_rep.length).join("/")
+            let deleteIfFileExist = await deleteFromGitHub(address_in_rep) 
+            if (deleteIfFileExist){
+                existingBlog.BlogImage.secure_url = process.env.default_BlogImage_rawgit_url;
+            }
+            //reuploading filee
+            try{
+                const saveOnGit = await uploadToGitHub(req.file.path,`blogs/${req.file.filename}`)
+                if (saveOnGit){
+                    existingBlog.BlogImage.rawgit_url = saveOnGit
+                }
+            }
+            catch(e){
+                return next(new AppError(e.message))
+            }
+
 
             try {
                 const result = await cloudinary.v2.uploader.upload(req.file.path, {

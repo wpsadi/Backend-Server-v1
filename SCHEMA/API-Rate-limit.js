@@ -11,7 +11,7 @@ const IP_API_call_schema = new Schema({
         type:Number,
         default:0
     },
-    createdAt: { type: Date, expires: '60s', default: Date.now }
+    createdAt: { type: Date, expires: '60', default: Date.now }
 }) 
 
 

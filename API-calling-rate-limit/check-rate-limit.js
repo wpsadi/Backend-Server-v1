@@ -3,17 +3,20 @@
 
 import API_limit from "../SCHEMA/API-Rate-limit.js";
 import AppError from "../UTILITY/errClass.js";
+// import autoDeleteArray from "./limit-perr-sec-calls.js";
 
 export const RateAPI = async (req, res, next) => {
+    // console.log(autoDeleteArray.array)
     try {
+
         const ip = String(req.clientIp);
         let IP_exist = await API_limit.findOneAndUpdate(
             { ip },
             { $inc: { NoOfRequests: 1 } },
             { new: true, upsert: true }
         );
-        if (IP_exist.NoOfRequests > 60) {
-            return next(new AppError("Restricted By API Rate limit -[ 60 Request/min]"));
+        if (IP_exist.NoOfRequests > 600) {
+            return next(new AppError("Restricted By API Rate limit -[ 600Requests/min]"));
         }
         next();
     } catch (e) {
