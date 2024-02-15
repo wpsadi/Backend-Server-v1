@@ -7,7 +7,7 @@ import path from "path"
 
 // Authentication
 const octokit = new Octokit({
-  auth: `${GitHub_Storage_rep_token_part1}${GitHub_Storage_rep_token_part2}`,
+  auth: `${process.env.GitHub_Storage_rep_token_part1}${process.env.GitHub_Storage_rep_token_part2}`,
 });
 
 // Repository Information
