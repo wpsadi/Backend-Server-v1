@@ -27,8 +27,7 @@ async function uploadToGitHub(imagePath,uploadPath) {
       path: uploadPath, // Specify the path where you want to upload the image
       message: "Upload image",
       content: imageContent.toString("base64"),
-      branch,
-
+      branch
     });
     return response.data.content.download_url
   } catch (error) {
