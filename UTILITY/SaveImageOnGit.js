@@ -61,7 +61,5 @@ async function deleteFromGitHub(filePath) {
 }
 
 // console.log(await uploadToGitHub());
-await deleteFromGitHub("gift/Untitled.png")
-
 
 export {uploadToGitHub,deleteFromGitHub}
