@@ -3,7 +3,7 @@
 import { Octokit } from "@octokit/rest";
 import fs from "fs";
 import "../environment.js"
-// import path from "path"
+import path from "path"
 
 // Authentication
 const octokit = new Octokit({
@@ -18,8 +18,9 @@ const branch = "main";
 // Path to the image file
 
 async function uploadToGitHub(imagePath,uploadPath) {
+  // console.log(path.resolve(imagePath))
   try {
-    const imageContent = fs.readFileSync(imagePath);
+    const imageContent = fs.readFileSync(path.resolve(imagePath));
     const response = await octokit.repos.createOrUpdateFileContents({
       owner,
       repo,
@@ -31,6 +32,7 @@ async function uploadToGitHub(imagePath,uploadPath) {
     });
     return response.data.content.download_url
   } catch (error) {
+    console.log(error.message)
     return false
     // throw new Error(error)
   }
@@ -60,6 +62,6 @@ async function deleteFromGitHub(filePath) {
   }
 }
 
-// console.log(await uploadToGitHub());
+// console.log(await uploadToGitHub("x.png","blog/x1.png"));
 
 export {uploadToGitHub,deleteFromGitHub}
