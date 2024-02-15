@@ -16,7 +16,7 @@ export const RateAPI = async (req, res, next) => {
             { new: true, upsert: true }
         );
         if (IP_exist.NoOfRequests > 600) {
-            return next(new AppError("Restricted By API Rate limit -[ 600Requests/min]"));
+            return next(new AppError("Restricted By API Rate limit -[ 600Requests/min]",429));
         }
         next();
     } catch (e) {

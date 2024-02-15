@@ -16,7 +16,7 @@ export const limit_API_calls = async(req,res,next)=>{
     }
 
     if (MassRequestIP[`${ip}`]>10){
-        return next(new AppError("Restricted By API Rate limit -[ 10 Request/sec]"));
+        return next(new AppError("Restricted By API Rate limit -[ 10 Request/sec]",429));
     }
 
     next();
