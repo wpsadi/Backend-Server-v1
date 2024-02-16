@@ -13,7 +13,7 @@ export const CreateAnnouncement = async (req, res, next) => {
         const { AnnouncementTitle, AnnouncementContent } = req.body
 
         // console.log(req.body,!AnnouncementContent)
-        if (!AnnouncementContent) {
+        if (!AnnouncementContent || !AnnouncementTitle) {
             return next(new AppError("Content OR Title not found"))
         }
 
