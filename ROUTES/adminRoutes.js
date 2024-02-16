@@ -5,6 +5,7 @@ import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
 import { IP } from "../MIDDLEWARE/IP.js";
+import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnoucement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -20,7 +21,7 @@ r.route("/frgt-pass-token").post(SendForgetPasswordTokenLink)
 //For creating a Prime Account{1st Admin}
 r.route("/PrimeAdmin").post(createPrimeAdmin)
 
-r.route("/login").post(IP,Admin_Login)
+r.route("/login").post(IP, Admin_Login)
 
 r.route("/adminLogout").get(RetrieveAdminCookie, CheckAdmin, Admin_Logout)
 
@@ -41,7 +42,7 @@ r.route("/authorize/:passedSessionID").get(AllowAdminSession)
 r.route("/reject/:passedSessionID").get(RevokeAdminSession);
 
 // in this route the reponse has array of objects with first one is the Current Logged In Admin
-r.route("/allAdmins").get(RetrieveAdminCookie, CheckAdmin, getAllAdmins) ;
+r.route("/allAdmins").get(RetrieveAdminCookie, CheckAdmin, getAllAdmins);
 
 r.route("/AllSessions").get(RetrieveAdminCookie, CheckAdmin, GetAdminSessions)
 r.route("/revoke/:sessionID").get(RetrieveAdminCookie, CheckAdmin, RevokeFromAdminPanel)
@@ -83,4 +84,20 @@ r.route("/blogs/published/page/:limit/:order").get(AllpaginationPublishedBlogs)
 
 r.route("/blogs/unpublished/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationUnpublishedBlogs)
 r.route("/blogs/unpublished/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationUnpublishedBlogs)
+
+
+// Announcement
+r.route("/announcements")
+    .post(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), CreateAnnouncement)
+
+
+r.route("/announcements/:AnnouncementID")
+    .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditAnnouncement)
+    .delete(RetrieveAdminCookie, CheckAdmin, DeleteAnnouncement)
+    .get(GetAnnouncement)
+
+r.route("/announcements/:AnnouncementID/:propertyToRetrieve").get(GetSpecificDataAnnoucement)
+
+r.route("/announcements/page/:limit/:pageNo/:order").get(paginationAnnouncements)
+r.route("/announcements/page/:limit/:order").get(AllpaginationAnnouncements)
 export default r;
