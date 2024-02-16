@@ -51,7 +51,7 @@ export const CreateBlog = async (req, res, next) => {
 
 
         let BlogImage = {}
-        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent:marked(BlogContent).trim(), BlogCategory, BlogImage, ApprovedBy: "None" });
+        const createBlog = await Blog.create({ BlogTitle, BlogAuthor, BlogAuthorEmail, BlogContent:marked(BlogContent).trim().split("\n").join(""), BlogCategory, BlogImage, ApprovedBy: "None" });
 
         if (!BlogAuthorEmail) {
             // const adminID = req.admin.adminID;
@@ -92,7 +92,7 @@ export const CreateBlog = async (req, res, next) => {
 
                     // console.log(result.public_id, result.secure_url)
                     // console.log(req.url.path)
-                    await fs.rm(req.file.path)
+                    
 
                 }
 
@@ -104,7 +104,7 @@ export const CreateBlog = async (req, res, next) => {
             }
 
         }
-
+        await fs.rm(req.file.path)
         await createBlog.save()
 
 
@@ -129,7 +129,7 @@ export const EditBlog = async (req, res, next) => {
     try {
         const { BlogID } = req.params
         const { BlogTitle, BlogAuthor, BlogAuthorEmail } = req.body
-        req.body["BlogContent"] = marked(req.body["BlogContent"]).trim()
+        req.body["BlogContent"] = marked(req.body["BlogContent"]).trim().split("\n").join("")
 
         let BlogCategory = req.body.BlogCategory;
         // console.log(!!BlogCategory)
