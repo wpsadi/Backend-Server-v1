@@ -15,12 +15,12 @@ const upload = function(Storepath=""){
       },
       filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
-        cb(null, `${Date.now()}`+file.originalname);
+        cb(null, `${Date.now()}`+(file.originalname.split(" ")).join("-"));
       },
     }),
     fileFilter: (req, file, cb) => {
       const ext = path.extname(file.originalname);
-      if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".webp" && ext !== ".png" && ext !== ".mp4") {
+      if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".webp" && ext !== ".png" && ext !== ".mp4" && ext!==".pdf") {
         cb(new Error("Invalid image file",false));
         return;
       }

@@ -214,7 +214,7 @@ export const EditBlog = async (req, res, next) => {
 
                     //removing file from local storage
 
-                    await fs.rm(req.file.path)
+                    
 
                 }
 
@@ -222,6 +222,8 @@ export const EditBlog = async (req, res, next) => {
                 // console.log("Image Goofed Up")
                 null
             }
+
+            await fs.rm(req.file.path)
 
         }
 
