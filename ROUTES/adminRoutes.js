@@ -5,8 +5,8 @@ import { CheckAdmin } from "../MIDDLEWARE/isAdmin.js";
 import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
 import { IP } from "../MIDDLEWARE/IP.js";
-import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnoucement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
-import { downloadQRImage, sendQRdata, viewQRImage } from "../CONTROLLERS/adminControllers/QRControllers.js";
+import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnouncement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
+import { AllpaginationQRs, CreateQR, DeleteQR, EditQR, GetQR, GetSpecificDataQR, downloadQRImage, downloadStoredQR, paginationQRs, sendQRdata, viewQRImage, viewStoredQR } from "../CONTROLLERS/adminControllers/QRControllers.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -97,15 +97,33 @@ r.route("/announcements/:AnnouncementID")
     .delete(RetrieveAdminCookie, CheckAdmin, DeleteAnnouncement)
     .get(GetAnnouncement)
 
-r.route("/announcements/:AnnouncementID/:propertyToRetrieve").get(GetSpecificDataAnnoucement)
+r.route("/announcements/:AnnouncementID/:propertyToRetrieve").get(GetSpecificDataAnnouncement)
 
 r.route("/announcements/page/:limit/:pageNo/:order").get(paginationAnnouncements)
 r.route("/announcements/page/:limit/:order").get(AllpaginationAnnouncements)
 
 
 //QR-code
-r.route("/qr").get(sendQRdata)
+r.route("/qr")
+    .get(sendQRdata)
+    .post(RetrieveAdminCookie, CheckAdmin, CreateQR)
 
 r.route("/qr/download").get(downloadQRImage)
 r.route("/qr/view").get(viewQRImage)
+
+
+
+r.route("/qr/:QRID")
+    .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditQR)
+    .delete(RetrieveAdminCookie, CheckAdmin, DeleteQR)
+    .get(GetQR)
+
+r.route("/qr/:QRID/:propertyToRetrieve").get(GetSpecificDataQR)
+
+r.route("/qr/page/:limit/:pageNo/:order").get(paginationQRs)
+r.route("/qr/page/:limit/:order").get(AllpaginationQRs)
+
+r.route("/qr/stored/:QRID/view").get(viewStoredQR)
+r.route("/qr/stored/:QRID/download").get(downloadStoredQR)
+
 export default r;
