@@ -84,7 +84,7 @@ export const CreateAnnouncement = async (req, res, next) => {
 
 
 
-}
+} 
 
 export const EditAnnouncement = async (req, res, next) => {
     try {
@@ -213,7 +213,7 @@ export const GetAnnouncement = async (req, res, next) => {
     }
 }
 
-export const GetSpecificDataAnnoucement = async(req,res,next) => {
+export const GetSpecificDataAnnouncement = async(req,res,next) => {
     try{
         const {AnnouncementID,propertyToRetrieve} = req.params;
 
