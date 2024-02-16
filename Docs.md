@@ -2,6 +2,8 @@
 
 To keep the server awake, use cron job
 
+The code for cloudinary only supports Images Upload for now
+
 `These docs cover all the RestAPI routes built using Express,MongoDB and a whole lot of dependencies`
 
 *All the files are treated as ModuleJS{require won't work, instead use `import`}*
