@@ -6,6 +6,7 @@ import upload from "../MIDDLEWARE/multer.middleware.js";
 import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
 import { IP } from "../MIDDLEWARE/IP.js";
 import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnoucement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
+import { downloadQRImage, sendQRdata, viewQRImage } from "../CONTROLLERS/adminControllers/QRControllers.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -100,4 +101,11 @@ r.route("/announcements/:AnnouncementID/:propertyToRetrieve").get(GetSpecificDat
 
 r.route("/announcements/page/:limit/:pageNo/:order").get(paginationAnnouncements)
 r.route("/announcements/page/:limit/:order").get(AllpaginationAnnouncements)
+
+
+//QR-code
+r.route("/qr").get(sendQRdata)
+
+r.route("/qr/download").get(downloadQRImage)
+r.route("/qr/view").get(viewQRImage)
 export default r;
