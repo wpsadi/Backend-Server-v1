@@ -4,28 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
+  <title>Form - <%= id %></title>
   <style>
     body {
-      margin:0px -1px;
-      margin-bottom:-1%;
+      margin:0px;
       overflow:hidden
     }
 
     #myIframe {
       width: 100%;
       height: 100vh;
+      overflow: scroll;
 
       /* overflow: hidden; */
     }
 
-    /* .iframe-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    } */
   </style>
 </head>
 
@@ -37,8 +30,10 @@
   <script>
     const iframe = document.getElementById('myIframe')
     // Check if the iframe is accessible
-    if (!iframe && !iframe.contentWindow && !iframe.contentWindow.document) {
-      // Redirect the user to the actual URL of the document
+    if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+      null
+    }
+    else{
       window.location.href = `${"<%= link %>"}`;
     }
   </script>

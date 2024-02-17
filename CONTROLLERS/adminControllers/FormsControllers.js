@@ -16,7 +16,7 @@ export const SendForm = async (req, res, next) => {
         const link = FormLink.URLToForm;
 
         // Send the response from the proxied request
-        res.render("FormView",{link});
+        res.render("FormView",{link,id:FormLink._id});
     } catch (e) {
         return next(new AppError(e.message));
     }
