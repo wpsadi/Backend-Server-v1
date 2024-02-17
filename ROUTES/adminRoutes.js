@@ -8,6 +8,7 @@ import { IP } from "../MIDDLEWARE/IP.js";
 import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnouncement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
 import { AllpaginationQRs, CreateQR, DeleteQR, EditQR, GetQR, GetSpecificDataQR, downloadQRImage, downloadStoredQR, paginationQRs, sendQRdata, viewQRImage, viewStoredQR } from "../CONTROLLERS/adminControllers/QRControllers.js";
 import { AllpaginationForms, CreateForm, DeleteForm, EditForm, GetForm, GetSpecificDataForm, SendForm, paginationForms } from "../CONTROLLERS/adminControllers/FormsControllers.js";
+import { AllpaginationLinks, CreateLink, DeleteLink, EditLink, GetLink, GetSpecificDataLink, SendLink, paginationLinks } from "../CONTROLLERS/adminControllers/LinkGenControllers.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -130,18 +131,36 @@ r.route("/qr/stored/:QRID/download").get(downloadStoredQR)
 
 //Forms
 r.route("/go/form/:ID").get(SendForm)
-r.route("/forms")
+r.route("/form")
     // .get(sendQRdata)
     .post(RetrieveAdminCookie, CheckAdmin, CreateForm)
 
-r.route("/forms/:FormID")
+r.route("/form/:FormID")
     .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditForm)
     .delete(RetrieveAdminCookie, CheckAdmin, DeleteForm)
     .get(RetrieveAdminCookie, CheckAdmin, GetForm)
 
-r.route("/forms/:FormID/:propertyToRetrieve").get(GetSpecificDataForm)
+r.route("/form/:FormID/:propertyToRetrieve").get(GetSpecificDataForm)
 
-r.route("/forms/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationForms)
-r.route("/forms/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationForms)
+r.route("/form/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationForms)
+r.route("/form/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationForms)
 
+
+
+
+// Links shortner
+r.route("/go/link/:ID").get(SendLink)
+r.route("/link")
+    // .get(sendQRdata)
+    .post(RetrieveAdminCookie, CheckAdmin, CreateLink)
+
+r.route("/link/:LinkID")
+    .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditLink)
+    .delete(RetrieveAdminCookie, CheckAdmin, DeleteLink)
+    .get(RetrieveAdminCookie, CheckAdmin, GetLink)
+
+r.route("/link/:LinkID/:propertyToRetrieve").get(GetSpecificDataLink)
+
+r.route("/link/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationLinks)
+r.route("/link/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationLinks)
 export default r;
