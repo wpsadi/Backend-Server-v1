@@ -350,10 +350,10 @@ export const approveBlog = async (req, res, next) => {
             return next(new AppError("Already approved"))
         }
 
-        if (!BlogExists.BlogAuthorEmail.includes("@acm.uss")){
-            sendEmail(BlogExists.BlogAuthorEmail,"[To Inform]: Blog Approved",`Hi ${BlogExists.BlogAuthor}, your blog with :<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>Has been APPROVED`)
+        // if (!BlogExists.BlogAuthorEmail.includes("@acm.uss")){
+        //     sendEmail(BlogExists.BlogAuthorEmail,"[To Inform]: Blog Approved",`Hi ${BlogExists.BlogAuthor}, your blog with :<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>Has been APPROVED`)
 
-        }
+        // }
 
         
         let response = "Approved";
@@ -384,9 +384,9 @@ export const rejectBlog = async (req, res, next) => {
             return next(new AppError("Already Rejected"))
         }
 
-        if (!BlogExists.BlogAuthorEmail.includes("@acm.uss")){
-            sendEmail(BlogExists.BlogAuthorEmail,"[To Inform]: Blog Rejected",`Hi ${BlogExists.BlogAuthor}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>has been REJECTED${BlogExists.Published || " and It is also UNPUBLISHED"}`)
-        }
+        // if (!BlogExists.BlogAuthorEmail.includes("@acm.uss")){
+        //     sendEmail(BlogExists.BlogAuthorEmail,"[To Inform]: Blog Rejected",`Hi ${BlogExists.BlogAuthor}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>has been REJECTED${BlogExists.Published || " and It is also UNPUBLISHED"}`)
+        // }
 
         
 
@@ -447,10 +447,10 @@ export const PublishBlog = async (req, res, next) => {
         }
 
 
-        if (!BlogExists.BlogAuthorEmail.includes("@acm.uss") && BlogExists.BlogAuthorEmail!=req.adminDetails.AdminEmail){
-            sendEmail(BlogExists.BlogAuthorEmail,`[To Inform]: Blog[${BlogID}] Published`,`Hi ${BlogExists.BlogAuthor}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle} has been PUBLISHED`)
+        // if (!BlogExists.BlogAuthorEmail.includes("@acm.uss") && BlogExists.BlogAuthorEmail!=req.adminDetails.AdminEmail){
+        //     sendEmail(BlogExists.BlogAuthorEmail,`[To Inform]: Blog[${BlogID}] Published`,`Hi ${BlogExists.BlogAuthor}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle} has been PUBLISHED`)
  
-        }
+        // }
         sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] Published`,`Hi ${req.adminDetails.AdminName}, you have published a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}`)
 
 
@@ -482,10 +482,10 @@ export const UnpublishBlog = async (req, res, next) => {
             return next(new AppError("Already UnPublished"))
         }
 
-        if (!BlogExists.BlogAuthorEmail.includes("@acm.uss") && BlogExists.BlogAuthorEmail!=req.adminDetails.AdminEmail){
-            sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] UnPublished`,`Hi ${req.adminDetails.AdminName}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>has been <u>UNPUBLISHED</u>`)
+        // if (!BlogExists.BlogAuthorEmail.includes("@acm.uss") && BlogExists.BlogAuthorEmail!=req.adminDetails.AdminEmail){
+        //     sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] UnPublished`,`Hi ${req.adminDetails.AdminName}, your blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}<br><br>has been <u>UNPUBLISHED</u>`)
 
-        }
+        // }
 
 
         sendEmail(req.adminDetails.AdminEmail,`[To Inform]: Blog[${BlogID}] UnPublished`,`Hi ${req.adminDetails.AdminName}, you have <u>unpublished</u> a blog with:<br>Blog ID : <b>${BlogID}</b><br>Titled : ${BlogExists.BlogTitle}`)
