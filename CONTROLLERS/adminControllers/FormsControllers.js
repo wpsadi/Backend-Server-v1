@@ -14,23 +14,9 @@ export const SendForm = async (req, res, next) => {
         }
 
         const link = FormLink.URLToForm;
-        const jsCode = `
-        const iframe = document.getElementById('myIframe')
-        // Check if the iframe is accessible
-        if (!iframe && iframe.contentWindow && iframe.contentWindow.document) {
-            // Redirect the user to the actual URL of the document
-            window.location.href = "${link}";
-        }
-    `;
 
-        const html = `
-        <iframe id="myIframe" src="${link}" style="height:100vh;margin:-12px -12px;width:100vw;overflow:scroll"></iframe>
-        <script>
-            ${jsCode}
-        </script>
-    `;
         // Send the response from the proxied request
-        res.send(html);
+        res.render("FormView",{link});
     } catch (e) {
         return next(new AppError(e.message));
     }

@@ -7,6 +7,8 @@ import cors from "cors";
 import { IP } from "./MIDDLEWARE/IP.js";
 import { RateAPI } from "./API-calling-rate-limit/check-rate-limit.js";
 import { limit_API_calls } from "./API-calling-rate-limit/limit-perr-sec-calls.js";
+import path from "path";
+
 
 const app = express();
 //Important Middleware {different from those middlewares the I made }
@@ -16,6 +18,11 @@ app.use(cors({origin:"*",credentials:true}))
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 app.use(IP,limit_API_calls ,RateAPI)
+app.set('view engine', 'ejs');
+
+
+// Specify the directory where your views/templates are located
+app.set('views', path.resolve("./HTML Templates"));
 
 // Routes \
     // go to /ROUTES to see different methods and routes avilable at admin
