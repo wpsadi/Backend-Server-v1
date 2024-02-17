@@ -2,7 +2,7 @@
 
 To keep the server awake, use cron job
 
-`Forms will only be displayed if `
+`Forms will only be redirected if  iframe is unavailable`
 
 The code for cloudinary only supports Images Upload for now
 
