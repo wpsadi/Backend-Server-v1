@@ -109,11 +109,12 @@ export const createNewAdmin = async (req, res, next) => {//New Admin can only be
 export const Admin_Login = async (req, res, next) => {
     try {
 
-        const { AdminEmail, password } = req.body;
+        let { AdminEmail, password } = req.body;
 
         if (!AdminEmail || !password) {
             return next(new AppError("Login Fields for Admin are Empty", 400))
         }
+
 
         const validatedEmail = await emailVal(AdminEmail)
 

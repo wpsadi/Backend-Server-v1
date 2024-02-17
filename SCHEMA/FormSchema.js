@@ -5,23 +5,23 @@ import "../environment.js"
 
 const autoInc = autoIncrement(mongoose)
 
-const QRSchema = new Schema({
-    QRPurpose: {
+const FormSchema = new Schema({
+    FormPurpose: {
         type: String,
         default: process.env.default_BlogTitle,
         trim: true,
-        required: [true, "Purpose of QR is missing"]
+        required: [true, "Purpose of Form is missing"]
     },
-    QRCreatedBy: {
+    FormCreatedBy: {
         type: String
     },
-    QRContent: {
+    URLToForm: {
         type: String,
         minLength: 5,
-        maxLength:[process.env.max_param_limit,`Maximum Permissible Length is ${process.env.max_param_limit}`],
-        required: [true, "Content of QR is missing"]
+        // maxLength:[process.env.max_param_limit,`Maximum Permissible Length is ${process.env.max_param_limit}`],
+        required: [true, "Link of Form is missing"]
     },
-    QRID: {
+    FormID: {
         type: Number,
         unique: true
     },
@@ -34,9 +34,9 @@ const QRSchema = new Schema({
 
 }, { timestamps: true })
 
-QRSchema.plugin(autoInc, { inc_field: "QRID" })
+FormSchema.plugin(autoInc, { inc_field: "FormID" })
 
-QRSchema.pre('save', async function (next) {
+FormSchema.pre('save', async function (next) {
     // console.log(this)
     if (!this.isModified('updatedAt')) {
         next();
@@ -55,4 +55,4 @@ QRSchema.pre('save', async function (next) {
 
 
 
-export const QR = model("QR",QRSchema)
+export const Form = model("Forms",FormSchema)

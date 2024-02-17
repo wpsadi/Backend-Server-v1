@@ -7,6 +7,7 @@ import { RetrieveAdminCookie } from "../MIDDLEWARE/GetAdminCookie.js";
 import { IP } from "../MIDDLEWARE/IP.js";
 import { AllpaginationAnnouncements, CreateAnnouncement, DeleteAnnouncement, EditAnnouncement, GetAnnouncement, GetSpecificDataAnnouncement, paginationAnnouncements } from "../CONTROLLERS/adminControllers/AnnouncementControllers.js";
 import { AllpaginationQRs, CreateQR, DeleteQR, EditQR, GetQR, GetSpecificDataQR, downloadQRImage, downloadStoredQR, paginationQRs, sendQRdata, viewQRImage, viewStoredQR } from "../CONTROLLERS/adminControllers/QRControllers.js";
+import { AllpaginationForms, CreateForm, DeleteForm, EditForm, GetForm, GetSpecificDataForm, SendForm, paginationForms } from "../CONTROLLERS/adminControllers/FormsControllers.js";
 
 const r = Router();
 // Definition of all functions is in /CONTROLLERS
@@ -116,14 +117,31 @@ r.route("/qr/view").get(viewQRImage)
 r.route("/qr/:QRID")
     .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditQR)
     .delete(RetrieveAdminCookie, CheckAdmin, DeleteQR)
-    .get(GetQR)
+    .get(RetrieveAdminCookie, CheckAdmin, GetQR)
 
 r.route("/qr/:QRID/:propertyToRetrieve").get(GetSpecificDataQR)
 
-r.route("/qr/page/:limit/:pageNo/:order").get(paginationQRs)
-r.route("/qr/page/:limit/:order").get(AllpaginationQRs)
+r.route("/qr/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationQRs)
+r.route("/qr/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationQRs)
 
 r.route("/qr/stored/:QRID/view").get(viewStoredQR)
 r.route("/qr/stored/:QRID/download").get(downloadStoredQR)
+
+
+//Forms
+r.route("/go/form/:ID").get(SendForm)
+r.route("/forms")
+    // .get(sendQRdata)
+    .post(RetrieveAdminCookie, CheckAdmin, CreateForm)
+
+r.route("/forms/:FormID")
+    .put(RetrieveAdminCookie, CheckAdmin, upload("blogs").single("coverPage"), EditForm)
+    .delete(RetrieveAdminCookie, CheckAdmin, DeleteForm)
+    .get(RetrieveAdminCookie, CheckAdmin, GetForm)
+
+r.route("/forms/:FormID/:propertyToRetrieve").get(GetSpecificDataForm)
+
+r.route("/forms/page/:limit/:pageNo/:order").get(RetrieveAdminCookie, CheckAdmin, paginationForms)
+r.route("/forms/page/:limit/:order").get(RetrieveAdminCookie, CheckAdmin, AllpaginationForms)
 
 export default r;
