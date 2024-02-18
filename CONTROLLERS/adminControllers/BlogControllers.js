@@ -127,12 +127,17 @@ export const CreateBlog = async (req, res, next) => {
 
 export const EditBlog = async (req, res, next) => {
     try {
+        // console.log("hi")
         const { BlogID } = req.params
         const { BlogTitle, BlogAuthor, BlogAuthorEmail } = req.body
-        req.body["BlogContent"] = marked(req.body["BlogContent"]).trim().split("\n").join("")
+        // console.log("hi")
+        if (req.body.Blogcontent){
+            req.body["BlogContent"] = marked(req.body["BlogContent"]).trim().split("\n").join("") || null
 
-        let BlogCategory = req.body.BlogCategory;
+        }
+        let BlogCategory = req.body.BlogCategory || null;
         // console.log(!!BlogCategory)
+        
         if (!!BlogCategory) {
             BlogCategory = (function () {
                 BlogCategory = BlogCategory.split(";");
@@ -148,6 +153,8 @@ export const EditBlog = async (req, res, next) => {
                 return CategoryArr
             })()
         }
+
+        
 
         // console.log(req.body,!BlogContent)
         // if (!BlogContent) {
@@ -346,7 +353,7 @@ export const approveBlog = async (req, res, next) => {
             return next(new AppError("No blog is associated with this BlogID", 400))
         }
 
-        if (BlogExists.Approved = true){
+        if (BlogExists.Approved == true){
             return next(new AppError("Already approved"))
         }
 

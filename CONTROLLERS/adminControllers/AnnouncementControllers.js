@@ -90,7 +90,9 @@ export const EditAnnouncement = async (req, res, next) => {
     try {
         const { AnnouncementID } = req.params
         const { AnnouncementTitle } = req.body
-        req.body["AnnouncementContent"] = marked(req.body["AnnouncementContent"]).trim().split("\n").join("")
+        if (req.body["AnnouncementContent"]){
+            req.body["AnnouncementContent"] = marked(req.body["AnnouncementContent"]).trim().split("\n").join("")
+        }
         const {AnnouncementContent} = req.body;
         req.body = {AnnouncementTitle, AnnouncementContent}
 
