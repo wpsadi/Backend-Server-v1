@@ -46,7 +46,7 @@ jobs:
       run: |
         npm install
         npm run build --if-present
-        npm run start --if-present
+        node ./server.js --if-present
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v3
